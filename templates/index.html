@@ -1,19 +1,19 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Index
+Index
 {% endblock %}
 
 {% block head %}
-    {% if session["user_id"] %}
-        <!-- script here-->
-    {% endif %}
+{% if session["user_id"] %}
+<!-- script here-->
+{% endif %}
 {% endblock%}
 
 {% block main %}
-    <h1>Home</h1>
+<h1>Home</h1>
 
-    {% if session["user_id"] %}
-        <p>Logged In</p>
-    {% endif %}
+{% if session["user_id"] %}
+<p>Logged In</p>
+{% endif %}
 {% endblock %}

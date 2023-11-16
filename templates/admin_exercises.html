@@ -1,125 +1,126 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Exercise Admin
+Exercise Admin
 {% endblock %}
 
 {% block head %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Find tbody containing rows
-            const table = document.querySelector("#exercises");
-            // Find all edit buttons within tbody
-            const buttons = table.getElementsByClassName("editbutton");
-            // Find the card to be used for editing
-            const card = document.querySelector("#card");
-            // Find the form to be used for editing
-            const form = document.querySelector("#frm_exercise");
-            // Find the add new button
-            const add_new = document.querySelector("#btn_addnew");
-            // Find the div for the cancel button
-            const cancel = document.querySelector("#btn_cancel");
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Find tbody containing rows
+        const table = document.querySelector("#exercises");
+        // Find all edit buttons within tbody
+        const buttons = table.getElementsByClassName("editbutton");
+        // Find the card to be used for editing
+        const card = document.querySelector("#card");
+        // Find the form to be used for editing
+        const form = document.querySelector("#frm_exercise");
+        // Find the add new button
+        const add_new = document.querySelector("#btn_addnew");
+        // Find the div for the cancel button
+        const cancel = document.querySelector("#btn_cancel");
 
-            // Configure Add New button
-            add_new.addEventListener('click', function() {
-                this.setAttribute("hidden", "true");
+        // Configure Add New button
+        add_new.addEventListener('click', function () {
+            this.setAttribute("hidden", "true");
+
+            // Reset the card from any previous use
+            card.innerHTML = "";
+
+            // Update the card with details of the exercise to be updated
+            card.insertAdjacentHTML("beforeend", "<div class='card-header'>Add New Exercise</div>");
+            card.insertAdjacentHTML("beforeend", "<ul class='list-group list-group-flush'>")
+            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Exercise Name: <input name='exercise_name'></li>");
+            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Intensity: <input name='intensity'></li>");
+            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Energy Burn Factor: <input name='energy_burn_factor'></li>");
+            card.insertAdjacentHTML("beforeend", "</ul>");
+            card.insertAdjacentHTML("beforeend", "<div class='card-footer'><button type='submit'>Add</button>");
+            card.scrollIntoView(true);
+            card.setAttribute("class", "card text-center")
+            form.setAttribute("action", "/add_exercise");
+            cancel.innerHTML = "<button onClick='window.location.reload();'>Cancel</button>"
+
+        })
+
+        // Add listener to each edit button
+        for (i of buttons) {
+            i.addEventListener('click', function () {
+                const id = this.dataset.id;
+                // Add td fields to constants
+                const name = document.querySelector("#" + CSS.escape(id) + "_name");
+                const intensity = document.querySelector("#" + CSS.escape(id) + "_intensity");
+                const ebf = document.querySelector("#" + CSS.escape(id) + '_ebf');
+                const button = document.querySelector("#" + CSS.escape(id) + '_button');
 
                 // Reset the card from any previous use
                 card.innerHTML = "";
 
                 // Update the card with details of the exercise to be updated
-                card.insertAdjacentHTML("beforeend", "<div class='card-header'>Add New Exercise</div>");
+                card.insertAdjacentHTML("beforeend", "<div class='card-header'>Edit Exercise</div>");
                 card.insertAdjacentHTML("beforeend", "<ul class='list-group list-group-flush'>")
-                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Exercise Name: <input name='exercise_name'></li>");
-                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Intensity: <input name='intensity'></li>");
-                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Energy Burn Factor: <input name='energy_burn_factor'></li>");
+                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Exercise Name: <input name='exercise_name' value='" + name.innerHTML + "'></li>");
+                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Intensity: <input name='intensity' value='" + intensity.innerHTML + "'></li>");
+                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Energy Burn Factor: <input name='energy_burn_factor' value='" + ebf.innerHTML + "'></li>");
                 card.insertAdjacentHTML("beforeend", "</ul>");
-                card.insertAdjacentHTML("beforeend", "<div class='card-footer'><button type='submit'>Add</button>");
+                card.insertAdjacentHTML("beforeend", "<div class='card-footer'><input type='hidden' name='id' value='" + id + "'><button type='submit'>Update</button></div>");
                 card.scrollIntoView(true);
                 card.setAttribute("class", "card text-center")
-                form.setAttribute("action", "/add_exercise");
+                form.setAttribute("action", "/update_exercise")
+                add_new.setAttribute("hidden", "true");
                 cancel.innerHTML = "<button onClick='window.location.reload();'>Cancel</button>"
-
             })
-
-            // Add listener to each edit button
-            for (i of buttons) {
-                i.addEventListener('click', function() {
-                    const id = this.dataset.id;
-                    // Add td fields to constants
-                    const name = document.querySelector("#" + CSS.escape(id) + "_name");
-                    const intensity = document.querySelector("#" + CSS.escape(id) + "_intensity");
-                    const ebf = document.querySelector("#" + CSS.escape(id) + '_ebf');
-                    const button = document.querySelector("#" + CSS.escape(id) + '_button');
-
-                    // Reset the card from any previous use
-                    card.innerHTML = "";
-
-                    // Update the card with details of the exercise to be updated
-                    card.insertAdjacentHTML("beforeend", "<div class='card-header'>Edit Exercise</div>");
-                    card.insertAdjacentHTML("beforeend", "<ul class='list-group list-group-flush'>")
-                    card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Exercise Name: <input name='exercise_name' value='" + name.innerHTML + "'></li>");
-                    card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Intensity: <input name='intensity' value='" + intensity.innerHTML + "'></li>");
-                    card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Energy Burn Factor: <input name='energy_burn_factor' value='" + ebf.innerHTML + "'></li>");
-                    card.insertAdjacentHTML("beforeend", "</ul>");
-                    card.insertAdjacentHTML("beforeend", "<div class='card-footer'><input type='hidden' name='id' value='" + id + "'><button type='submit'>Update</button></div>");
-                    card.scrollIntoView(true);
-                    card.setAttribute("class", "card text-center")
-                    form.setAttribute("action", "/update_exercise")
-                    add_new.setAttribute("hidden", "true");
-                    cancel.innerHTML = "<button onClick='window.location.reload();'>Cancel</button>"
-                })
-            }
-        })
+        }
+    })
 
 
-    </script>
+</script>
 {% endblock %}
 {% block main %}
-    <h1>Global exercises avaliable for all users</h1>
+<h1>Global exercises avaliable for all users</h1>
 
-    <form id="frm_exercise" method="post" onsubmit="return confirm('Are you sure you wish to update?');">
-        <div id="card" style="width: 50rem; margin-left: auto; margin-right: auto;"></div>
-    </form>
+<form id="frm_exercise" method="post" onsubmit="return confirm('Are you sure you wish to update?');">
+    <div id="card" style="width: 50rem; margin-left: auto; margin-right: auto;"></div>
+</form>
 
-    <button id="btn_addnew">Add New Exercise</button>
-    <div id="btn_cancel"></div>
-    
-    <br>
+<button id="btn_addnew">Add New Exercise</button>
+<div id="btn_cancel"></div>
 
-    <div class="card text-center">
-        <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Intensity</th>
-                        <th>EBF</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="exercises">        
-                    {% for exercise in exercises %}
-                    
-                        <tr>
-                            <td id="{{ exercise['id'] }}_name">{{ exercise["exercise_name"] }}</td>
-                            <td id="{{ exercise['id'] }}_intensity">{{ exercise["intensity"] }}</td>
-                            <td id="{{ exercise['id'] }}_ebf">{{ exercise["energy_burn_factor"] }}</td>
-                            <td id="{{ exercise['id'] }}_button">
-                                <button class="editbutton" data-id="{{ exercise['id'] }}" type="button">Edit</button>
-                            </td>
-                            <td>
-                                <form action="/delete_exercise" method="post" onsubmit="return confirm('Are you sure you wish to delete {{ exercise['exercise_name'] }} - {{ exercise['intensity'] }}?');">
-                                    <input type="hidden" name="id" value="{{ exercise['id'] }}">
-                                    <button type="submit">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<br>
+
+<div class="card text-center">
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Intensity</th>
+                    <th>EBF</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="exercises">
+                {% for exercise in exercises %}
+
+                <tr>
+                    <td id="{{ exercise['id'] }}_name">{{ exercise["exercise_name"] }}</td>
+                    <td id="{{ exercise['id'] }}_intensity">{{ exercise["intensity"] }}</td>
+                    <td id="{{ exercise['id'] }}_ebf">{{ exercise["energy_burn_factor"] }}</td>
+                    <td id="{{ exercise['id'] }}_button">
+                        <button class="editbutton" data-id="{{ exercise['id'] }}" type="button">Edit</button>
+                    </td>
+                    <td>
+                        <form action="/delete_exercise" method="post"
+                            onsubmit="return confirm('Are you sure you wish to delete {{ exercise['exercise_name'] }} - {{ exercise['intensity'] }}?');">
+                            <input type="hidden" name="id" value="{{ exercise['id'] }}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
 {% endblock %}

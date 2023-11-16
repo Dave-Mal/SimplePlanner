@@ -1,12 +1,12 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Food Admin
+Food Admin
 {% endblock %}
 
 {% block head %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Find tbody containing rows
         const table = document.querySelector("#foods");
         // Find all edit buttons within tbody
@@ -21,7 +21,7 @@
         const cancel = document.querySelector("#btn_cancel");
 
         // Configure Add New button
-        add_new.addEventListener('click', function() {
+        add_new.addEventListener('click', function () {
             this.setAttribute("hidden", "true");
 
             // Reset the card from any previous use
@@ -48,7 +48,7 @@
 
         // Add listener to each edit button
         for (i of buttons) {
-            i.addEventListener('click', function() {
+            i.addEventListener('click', function () {
                 const id = this.dataset.id;
                 // Add td fields to constants
                 const food_name = document.querySelector("#" + CSS.escape(id) + "_food_name");
@@ -57,7 +57,7 @@
                 const protien = document.querySelector("#" + CSS.escape(id) + '_protien');
                 const carbohydrate = document.querySelector("#" + CSS.escape(id) + '_carbohydrate');
                 const fat = document.querySelector("#" + CSS.escape(id) + '_fat');
-                
+
                 // Reset the card from any previous use
                 card.innerHTML = "";
 
@@ -87,56 +87,57 @@
 </script>
 {% endblock %}
 {% block main %}
-    <h1>Global foods avaliable for all users</h1>
+<h1>Global foods avaliable for all users</h1>
 
-    <form id="frm_food" method="post" onsubmit="return confirm('Are you sure you wish to update?');">
-        <div id="card" style="width: 50rem; margin-left: auto; margin-right: auto;"></div>
-    </form>
+<form id="frm_food" method="post" onsubmit="return confirm('Are you sure you wish to update?');">
+    <div id="card" style="width: 50rem; margin-left: auto; margin-right: auto;"></div>
+</form>
 
-    <button id="btn_addnew">Add New Food</button>
-    <div id="btn_cancel"></div>
+<button id="btn_addnew">Add New Food</button>
+<div id="btn_cancel"></div>
 
-        <br>
+<br>
 
-    <div class="card text-center">
-        <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Name</th>
-                        <th>Protien (g)</th>
-                        <th>Carbohydrate (g)</th>
-                        <th>Fat (g)</th>
-                        <th>Energy (KCal)</th>
-                    </tr>
-                </thead>
-                <tbody id="foods">        
-                    {% for food in standard_foods %}
-                    <tr>
-                            <td id="{{ food['id'] }}_type" data-id="{{ food['food_type_id'] }}">{{ food["type"] }}</td>
-                            <td id="{{ food['id'] }}_food_name">{{ food["food_name"] }}</td>
-                            <td id="{{ food['id'] }}_protien">{{ food["protien"] }}</td>
-                            <td id="{{ food['id'] }}_carbohydrate">{{ food["carbohydrate"] }}</td>
-                            <td id="{{ food['id'] }}_fat">{{ food["fat"] }}</td>
-                            <td id="{{ food['id'] }}_energy">{{ food["energy"] }}</td>
-                            <td id="{{ food['id'] }}_button">
-                                <button class="editbutton" data-id="{{ food['id'] }}" type="button">Edit</button>
-                            </td>
-                            <td>
-                                <form action="/delete_standard_food" method="post" onsubmit="return confirm('Are you sure you wish to delete {{ food['food_name'] }}?');">
-                                    <input type="hidden" name="id" value="{{ food['id'] }}">
-                                    <button type="submit">Delete</button>
-                                </form>
-                            </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<div class="card text-center">
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Protien (g)</th>
+                    <th>Carbohydrate (g)</th>
+                    <th>Fat (g)</th>
+                    <th>Energy (KCal)</th>
+                </tr>
+            </thead>
+            <tbody id="foods">
+                {% for food in standard_foods %}
+                <tr>
+                    <td id="{{ food['id'] }}_type" data-id="{{ food['food_type_id'] }}">{{ food["type"] }}</td>
+                    <td id="{{ food['id'] }}_food_name">{{ food["food_name"] }}</td>
+                    <td id="{{ food['id'] }}_protien">{{ food["protien"] }}</td>
+                    <td id="{{ food['id'] }}_carbohydrate">{{ food["carbohydrate"] }}</td>
+                    <td id="{{ food['id'] }}_fat">{{ food["fat"] }}</td>
+                    <td id="{{ food['id'] }}_energy">{{ food["energy"] }}</td>
+                    <td id="{{ food['id'] }}_button">
+                        <button class="editbutton" data-id="{{ food['id'] }}" type="button">Edit</button>
+                    </td>
+                    <td>
+                        <form action="/delete_standard_food" method="post"
+                            onsubmit="return confirm('Are you sure you wish to delete {{ food['food_name'] }}?');">
+                            <input type="hidden" name="id" value="{{ food['id'] }}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
 
 
-    
+
 
 {% endblock %}

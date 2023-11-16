@@ -1,20 +1,26 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Register
+Register
 {% endblock %}
 
 {% block main %}
 
 <form action="/register" method="post">
-<div class="card" style="width: 18rem; margin-left: auto; margin-right: auto;">
+  <div class="card" style="width: 18rem; margin-left: auto; margin-right: auto;">
     <ul class="list-group list-group-flush">
-      <li class="list-group-item"><input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Username" type="text"></li>
-      <li class="list-group-item"><input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="height" placeholder="Height (cm)" type="text"></li>
-      <li class="list-group-item"><input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="weight" placeholder="Weight (Kg)" type="text"></li>
-      <li class="list-group-item"><input type="radio" name="sex" value="m">Male</input><input type="radio" name="sex" value="f">Female</input></li>
+      <li class="list-group-item"><input autocomplete="off" autofocus class="form-control mx-auto w-auto"
+          name="username" placeholder="Username" type="text"></li>
+      <li class="list-group-item"><input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="height"
+          placeholder="Height (cm)" type="text"></li>
+      <li class="list-group-item"><input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="weight"
+          placeholder="Weight (Kg)" type="text"></li>
+      <li class="list-group-item"><input type="radio" name="sex" value="m">Male</input><input type="radio" name="sex"
+          value="f">Female</input></li>
       <li class="list-group-item"><label for="birthday">Birthday:</label><input type="date" name="birthday"></li>
-      <li class="list-group-item"><input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password"><input class="form-control mx-auto w-auto" id="confirmation" name="confirmation" placeholder="Password confirmation" type="password"></li>
+      <li class="list-group-item"><input class="form-control mx-auto w-auto" id="password" name="password"
+          placeholder="Password" type="password"><input class="form-control mx-auto w-auto" id="confirmation"
+          name="confirmation" placeholder="Password confirmation" type="password"></li>
       <div class="card-footer"><button class="btn btn-primary" type="submit">Register</button></div>
     </ul>
   </div>
