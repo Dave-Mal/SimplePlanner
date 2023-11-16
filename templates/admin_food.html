@@ -1,0 +1,142 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Food Admin
+{% endblock %}
+
+{% block head %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find tbody containing rows
+        const table = document.querySelector("#foods");
+        // Find all edit buttons within tbody
+        const buttons = table.getElementsByClassName("editbutton");
+        // Find the card to be used for editing
+        const card = document.querySelector("#card");
+        // Find the form to be used for editing
+        const form = document.querySelector("#frm_food");
+        // Find the add new button
+        const add_new = document.querySelector("#btn_addnew");
+        // Find the div for the cancel button
+        const cancel = document.querySelector("#btn_cancel");
+
+        // Configure Add New button
+        add_new.addEventListener('click', function() {
+            this.setAttribute("hidden", "true");
+
+            // Reset the card from any previous use
+            card.innerHTML = "";
+
+            // Build empty card to allow new addition
+            card.insertAdjacentHTML("beforeend", "<div class='card-header'>Add New Food</div>");
+            card.insertAdjacentHTML("beforeend", "<ul class='list-group list-group-flush'>");
+            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Food Name: <input name='name'></li>");
+            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Food Type: <select name='food_type'>{% for type in food_types %}<option value='{{ type['id'] }}'>{{ type['type'] }}</option>{% endfor %}</select>");
+            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Energy: <input name='energy'></li>");
+            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Protien: <input name='protien'></li>");
+            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Carbohydrate: <input name='carbohydrate'></li>");
+            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Fat: <input name='fat'></li>");
+            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Amount: <input name='amount'></li>");
+            card.insertAdjacentHTML("beforeend", "</ul>");
+            card.insertAdjacentHTML("beforeend", "<div class='card-footer'><button type='submit'>Add</button>");
+            card.scrollIntoView(true);
+            card.setAttribute("class", "card text-center")
+            form.setAttribute("action", "/standardfood");
+            cancel.innerHTML = "<button onClick='window.location.reload();'>Cancel</button>"
+
+        })
+
+        // Add listener to each edit button
+        for (i of buttons) {
+            i.addEventListener('click', function() {
+                const id = this.dataset.id;
+                // Add td fields to constants
+                const food_name = document.querySelector("#" + CSS.escape(id) + "_food_name");
+                const type = document.querySelector("#" + CSS.escape(id) + "_type")
+                const energy = document.querySelector("#" + CSS.escape(id) + '_energy');
+                const protien = document.querySelector("#" + CSS.escape(id) + '_protien');
+                const carbohydrate = document.querySelector("#" + CSS.escape(id) + '_carbohydrate');
+                const fat = document.querySelector("#" + CSS.escape(id) + '_fat');
+                
+                // Reset the card from any previous use
+                card.innerHTML = "";
+
+                // Update the card with details of the exercise to be updated
+                card.insertAdjacentHTML("beforeend", "<div class='card-header'>Edit Food</div>");
+                card.insertAdjacentHTML("beforeend", "<ul class='list-group list-group-flush'>");
+                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Food Name: <input name='food_name' value='" + food_name.innerHTML + "'></li>");
+                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Food Type: <select name='food_type'>{% for type in food_types %}<option value='{{ type['id'] }}'>{{ type['type'] }}</option>{% endfor %}</select>");
+                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Energy: <input name='energy' value='" + energy.innerHTML + "'></li>");
+                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Protien: <input name='protien' value='" + protien.innerHTML + "'></li>");
+                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Carbohydrate: <input name='carbohydrate' value='" + carbohydrate.innerHTML + "'></li>");
+                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Fat: <input name='fat' value='" + fat.innerHTML + "'></li>");
+                card.insertAdjacentHTML("beforeend", "</ul>");
+                card.insertAdjacentHTML("beforeend", "<div class='card-footer'><input type='hidden' name='id' value='" + id + "'><button type='submit'>Update</button></div>");
+                card.scrollIntoView(true);
+                card.setAttribute("class", "card text-center")
+                form.setAttribute("action", "/update_standard_food");
+                add_new.setAttribute("hidden", "true");
+                cancel.innerHTML = "<button onClick='window.location.reload();'>Cancel</button>"
+
+            })
+        }
+    })
+
+
+
+</script>
+{% endblock %}
+{% block main %}
+    <h1>Global foods avaliable for all users</h1>
+
+    <form id="frm_food" method="post" onsubmit="return confirm('Are you sure you wish to update?');">
+        <div id="card" style="width: 50rem; margin-left: auto; margin-right: auto;"></div>
+    </form>
+
+    <button id="btn_addnew">Add New Food</button>
+    <div id="btn_cancel"></div>
+
+        <br>
+
+    <div class="card text-center">
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Name</th>
+                        <th>Protien (g)</th>
+                        <th>Carbohydrate (g)</th>
+                        <th>Fat (g)</th>
+                        <th>Energy (KCal)</th>
+                    </tr>
+                </thead>
+                <tbody id="foods">        
+                    {% for food in standard_foods %}
+                    <tr>
+                            <td id="{{ food['id'] }}_type" data-id="{{ food['food_type_id'] }}">{{ food["type"] }}</td>
+                            <td id="{{ food['id'] }}_food_name">{{ food["food_name"] }}</td>
+                            <td id="{{ food['id'] }}_protien">{{ food["protien"] }}</td>
+                            <td id="{{ food['id'] }}_carbohydrate">{{ food["carbohydrate"] }}</td>
+                            <td id="{{ food['id'] }}_fat">{{ food["fat"] }}</td>
+                            <td id="{{ food['id'] }}_energy">{{ food["energy"] }}</td>
+                            <td id="{{ food['id'] }}_button">
+                                <button class="editbutton" data-id="{{ food['id'] }}" type="button">Edit</button>
+                            </td>
+                            <td>
+                                <form action="/delete_standard_food" method="post" onsubmit="return confirm('Are you sure you wish to delete {{ food['food_name'] }}?');">
+                                    <input type="hidden" name="id" value="{{ food['id'] }}">
+                                    <button type="submit">Delete</button>
+                                </form>
+                            </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    
+
+{% endblock %}

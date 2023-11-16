@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    User Admin
+{% endblock %}
+
+{% block main %}
+<div class="card text-center">
+    <div class="card-body">
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Hash</th>
+            <th>Weight</th>
+            <th>Height</th>
+            <th>Sex</th>
+            <th>Birthday</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user["id"] }}</td>
+            <td>{{ user["username"] }}</td>
+            <td>{{ user["hash"] }}</td>
+            <td>{{ user["weight"] }}</td>
+            <td>{{ user["height"] }}</td>
+            <td>{{ user["sex"] }}</td>
+            <td>{{ user["birthday"] }}</td>
+            <td>
+                <form action="/delete_user" method="post" onsubmit="return confirm('Are you sure you wish to delete {{ user['username'] }} ?');">
+                    <input type="hidden" name="id" value='{{ user["id"] }}'>
+                    {% if session["user_id"] ==  user["id"] %}
+                    <button type="submit" disabled>DELETE USER</button>
+                    {% else %}
+                    <button type="submit">DELETE USER</button>
+                    {% endif %}
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+</div>
+{% endblock %}

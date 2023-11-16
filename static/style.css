@@ -1,0 +1,64 @@
+.center {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+.toast-container {
+    z-index: 7000;
+  }
+
+body {
+  background-color: rgb(14, 125, 162);
+}
+
+h1 {
+  color: rgba(255, 255, 255, 0.645);
+  text-align: center;
+}
+
+p {
+  font-family: verdana;
+  font-size: 16px;
+}
+
+a {
+  color: rgb(255, 255, 255);
+}
+
+a:hover {
+  color: rgb(0, 0, 0);
+}
+    
+table {
+  border: 1px solid;
+}
+
+button {
+  background-color: rgb(14, 125, 162);
+  border: 2px solid rgb(14, 125, 162);
+  color: white;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 4px;
+  transition-duration: 0.4s;
+}
+
+button:hover {
+  background-color: #ffffff;
+  color: rgb(14, 125, 162);
+  border: 2px solid rgb(14, 125, 162);
+}
+
+.toast-body a {
+  color: rgb(0, 0, 0);
+}
+
+.navbar a, .modal a {
+  color: rgb(0, 0, 0);
+}
+.navbar a:hover, .modal a:hover {
+  color: rgb(14, 125, 162);
+}

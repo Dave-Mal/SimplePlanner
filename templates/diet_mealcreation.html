@@ -1,0 +1,167 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Meal Creation
+{% endblock %}
+
+{% block head %}
+
+
+{% endblock %}
+{% block main %}
+<h1>Meal Creation</h1>
+<p>Create new meals using ingredients in the system</p>
+  
+
+    <div class="card" style="width: 50rem; margin-left: auto; margin-right: auto;">
+        <div class="card-header">
+            <button type="button" data-bs-toggle="modal" data-bs-target="#helpModal" style="float: right"><i class="bi bi-question-square-fill"></i> Help</button>
+        </div>
+        <div class="card-body">
+          <p><i>Create a meal using the below list of ingredients</i></p>
+          <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Protien</th>
+                    <th>Carbohydrate</th>
+                    <th>Fat</th>
+                    <th>Energy</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for food in build_custom_food %}
+                <tr>
+                    <td>{{ food["food_name"] }}</td>
+                    <td>{{ food["amount"] | gkg }}</td>
+                    <td>{{ food["protien"] | gkg }}</td>
+                    <td>{{ food["carbohydrate"] | gkg }}</td>
+                    <td>{{ food["fat"] | gkg }}</td>
+                    <td>{{ food["energy"] | kcal }}</td>
+                    <td>
+                        <form action="/build_meal_remove" method="post">
+                            <input type="hidden" name="id" value='{{ food["id"] }}'>
+                            <button type="submit">-</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <form action="/customfood" method="post">
+                <tfoot>
+                    <tr>
+                        <td>Total</td>
+                        <td>{{ build_custom_food | sum(attribute="amount") | gkg }}<input type="hidden" name="amount" value='{{ build_custom_food | sum(attribute="amount") }}'></td>
+                        <td>{{ build_custom_food | sum(attribute="protien") | gkg }}<input type="hidden" name="protien" value='{{ build_custom_food | sum(attribute="protien") }}'></td>
+                        <td>{{ build_custom_food | sum(attribute="carbohydrate") | gkg }}<input type="hidden" name="carbohydrate" value='{{ build_custom_food | sum(attribute="carbohydrate") }}'></td>
+                        <td>{{ build_custom_food | sum(attribute="fat") | gkg }}<input type="hidden" name="fat" value='{{ build_custom_food | sum(attribute="fat") }}'></td>
+                        <td>{{ build_custom_food | sum(attribute="energy") | kcal }}<input type="hidden" name="energy" value='{{ build_custom_food | sum(attribute="energy") }}'></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+        </table>
+            
+        </div>
+            <div class="card-footer">
+                    <input name="name" autocomplete="off" placeholder="Name your meal"><input type="hidden" name="food_type" value='{{ food_types_meal[0]["id"] }}'> <button type="submit">Add</button>
+                
+            </div>
+        </form>
+      </div>
+
+<br>
+
+
+    <div class="card text-center">
+        <div class="card-header">
+          <ul class="nav nav-tabs card-header-tabs">
+            {% if session["food_type"] == "%" %}
+            <form action="/change_food_type" method="post">
+                <input type="hidden" name="id" value="%">
+                <button type="submit" class="nav-link active">All</button>
+            </form>
+            {% else %}
+            <form action="/change_food_type" method="post">
+                <input type="hidden" name="id" value="%">
+                <button type="submit" class="nav-link">All</button>
+            </form>
+            {% endif %}
+            {% for type in food_types %}
+            {% if session["food_type"] | int == type["id"] %}
+            <form action="/change_food_type" method="post">
+                <input type="hidden" name="id" value='{{ type["id"] }}'>
+                <button type="submit" class="nav-link active">{{ type["type"] }}</button>
+            </form>
+            {% else %}
+            <form action="/change_food_type" method="post">
+                <input type="hidden" name="id" value='{{ type["id"] }}'>
+                <button type="submit" class="nav-link">{{ type["type"] }}</button>
+            </form>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="card-header">
+            <i>Nutritional information per 100g</i>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Protien</th>
+                        <th>Carbohydrate</th>
+                        <th>Fat</th>
+                        <th>Energy</th>
+                        <th>Amount (g)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                
+                    {% for food in standard_foods %}
+                    <tr>
+                        <form action="/build_meal" method="post">
+                            <td>{{ food["food_name"] }}<input type="hidden" id="food_name" name="food_name" value='{{ food["food_name"] }}'></td>
+                            <td>{{ food["protien"] | gkg }}<input type="hidden" id="protien" name="protien" value='{{ food["protien"] }}'></td>
+                            <td>{{ food["carbohydrate"] | gkg }}<input type="hidden" id="carbohydrate" name="carbohydrate" value='{{ food["carbohydrate"] }}'></td>
+                            <td>{{ food["fat"] | gkg }}<input type="hidden" id="fat" name="fat" value='{{ food["fat"] }}'></td>
+                            <td>{{ food["energy"] |kcal }}<input type="hidden" id="energy" name="energy" value='{{ food["energy"] }}'></td>
+                            <td><input autocomplete="off" id="amount" name="amount" placeholder="Amount (g)" type="number"></td>
+                            <td>
+                                <input type="hidden" id="id" name="food_id" value='{{ food["id"] }}'>
+                                <button type="submit">+</button>
+                            </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+      </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="helpModalLabel">Help</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <p>A meal can be created using ingredients found in the catalog</p>
+            <p>Add the ingredients as required</p>
+            <p>Give the meal a name and add it to the catalog</p>
+            <p>The meal can then be added to your <a href="/diet_diary">food diary</a></p>
+            <p>If an ingredient isnt present, an ingredient can be added <a href="/customfood">here</a></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

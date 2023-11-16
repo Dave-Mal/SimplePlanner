@@ -1,0 +1,172 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Food Diary
+{% endblock %}
+
+{% block main %}
+<h1>Food Diary</h1>
+<p>Use the table below to add the food eaten to the food diary above.<br>
+    If an item isnt listed, <a href="/customfood">add one here</a><br>
+    If you want to create a meal from the ingredients listed below, <a href="/mealcreation">add one here</a></p>
+
+
+
+<div class="card" style="width: 50rem; margin-left: auto; margin-right: auto;">
+    <div class="card-header">
+      <ul class="nav nav-tabs card-header-tabs">
+        <li class="nav-item">
+            <form action="/change_day" method="post">
+                <input type="hidden" name="day" value="-1">
+                <button type="submit" class="nav-link">{{ session["date"] | date_format_previousday }}</button>
+            </form>        </li>
+        <li class="nav-item">
+            {% if session["date"] == session["today"] %}
+            <form action="/change_day" method="post">
+                <input type="hidden" name="day" value="0">
+                <button type="submit" class="nav-link active" disabled>Today</button>
+            </form>
+            {% else %}
+            <form action="/change_day" method="post">
+                <input type="hidden" name="day" value="0">
+                <button type="submit" class="nav-link active">Return to Today</button>
+            </form>
+            {% endif %}
+        </li>
+        <li class="nav-item">
+            {% if session["date"] < session["today"] %}
+            <form action="/change_day" method="post">
+                <input type="hidden" name="day" value="1">
+                <button type="submit" class="nav-link">{{ session["date"] | date_format_nextday }}</button>
+            </form>
+            {% endif %}       
+        </li>
+    </ul>
+
+      
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">Food eaten on {{ session["date"] | date_format }}</h5>
+      <p><i>Add food using the below list of foods</i></p>
+      <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Amount</th>
+                <th>Protien</th>
+                <th>Carbohydrate</th>
+                <th>Fat</th>
+                <th>Energy</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for food in consumption %}
+            <tr>
+                <td>{{ food["food_name"] }}</td>
+                <td>{{ food["amount"] | round(1) | gkg }}</td>
+                <td>{{ food["protien"] | round(1) | gkg }}</td>
+                <td>{{ food["carbohydrate"] | round(1) | gkg }}</td>
+                <td>{{ food["fat"] | round(1) | gkg }}</td>
+                <td>{{ food["energy"] | kcal }}</td>
+                <td>
+                    <form action="/removefromdiet" method="post">
+                        <input type="hidden" id="id" name="consumption_id" value='{{ food["id"] }}'>
+                        <button type="submit">-</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Total</td>
+                <td>{{ consumption | sum(attribute="amount") | round(1) | gkg }}</td>
+                <td>{{ consumption | sum(attribute="protien") | round(1) | gkg }}</td>
+                <td>{{ consumption | sum(attribute="carbohydrate") | round(1) | gkg }}</td>
+                <td>{{ consumption | sum(attribute="fat") | round(1) | gkg }}</td>
+                <td>{{ consumption | sum(attribute="energy") | round | int | kcal }}</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+        
+    </div>
+  </div>
+
+ 
+<br>
+
+
+
+    <div class="card text-center">
+        <div class="card-header">
+          <ul class="nav nav-tabs card-header-tabs">
+            {% if session["food_type"] == "%" %}
+            <form action="/change_food_type" method="post">
+                <input type="hidden" name="id" value="%">
+                <button type="submit" class="nav-link active">All</button>
+            </form>
+            {% else %}
+            <form action="/change_food_type" method="post">
+                <input type="hidden" name="id" value="%">
+                <button type="submit" class="nav-link">All</button>
+            </form>
+            {% endif %}
+            {% for type in food_types %}
+            {% if session["food_type"] | int == type["id"] %}
+            <form action="/change_food_type" method="post">
+                <input type="hidden" name="id" value='{{ type["id"] }}'>
+                <button type="submit" class="nav-link active">{{ type["type"] }}</button>
+            </form>
+            {% else %}
+            <form action="/change_food_type" method="post">
+                <input type="hidden" name="id" value='{{ type["id"] }}'>
+                <button type="submit" class="nav-link">{{ type["type"] }}</button>
+            </form>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Protien</th>
+                        <th>Carbohydrate</th>
+                        <th>Fat</th>
+                        <th>Energy</th>
+                        <th>Amount (g)</th>
+                        <th>Add to food diary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                
+                    {% for food in standard_foods %}
+                    <tr>
+                        <form action="/diet_diary" method="post">
+                            <td>{{ food["food_name"] }}<input type="hidden" id="food_name" name="name" value='{{ food["food_name"] }}'></td>
+                            <td>{{ food["protien"] | gkg }}<input type="hidden" id="protien" name="protien" value='{{ food["protien"] }}'></td>
+                            <td>{{ food["carbohydrate"] | gkg }}<input type="hidden" id="carbohydrate" name="carbohydrate" value='{{ food["carbohydrate"] }}'></td>
+                            <td>{{ food["fat"] | gkg }}<input type="hidden" id="fat" name="fat" value='{{ food["fat"] }}'></td>
+                            <td>{{ food["energy"] |kcal }}<input type="hidden" id="energy" name="energy" value='{{ food["energy"] }}'></td>
+                            <td><input autocomplete="off" id="amount" name="amount" placeholder="Amount (g)" required type="number"></td>
+                            <td>
+                                <input type="hidden" id="id" name="food_id" value='{{ food["id"] }}'>
+                                <button type="submit">+</button>
+                            </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+      </div>
+
+
+
+
+
+ 
+{% endblock %}

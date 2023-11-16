@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Overview
+{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block main %}
+<h1>Overview</h1>
+
+{% if daily %}
+<div class="card text-center">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Weight</th>
+                    <th>Macro Nutrient Breakdown P:C:F</th>
+                    <th>Energy Consumed</th>
+                    <th>Maintanance Calories</th>
+                    <th>Energy Burnt from activities</th>
+                    <th>Calorific Surpluss (+) /Deficit (-)</th>
+                </tr>
+            </thead>
+        <tbody>
+        {% for day in daily %}
+            <tr>
+                <td class="table-light">{{ day["date"] }}</td>
+                <td class="table-secondary">{{ day["weight"] }} Kg</td>
+                <td class="table-success">{{ day["protien"] | round | int | gkg }} : {{ day["carbohydrate"] | round | int | gkg }} : {{ day["fat"] | round | int | gkg }}</td>
+                <td class="table-success">+{{ day["energy"] | round | int | kcal }}</td>
+                <td class="table-warning">-{{ day["basic_maint"] | round | int | kcal }}</td>
+                <td class="table-warning">-{{ day["energy_out"] | round | int | kcal }}</td>
+                <td class="table-dark">{{ (day["energy"] - day["basic_maint"] - day["energy_out"]) | round | int | kcal }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+</div>
+
+<br>
+
+<div class="card text-center">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Avg Weight (Kg)</th>
+                    <th>Avg Macro Nutrient Breakdown P:C:F</th>
+                    <th>Avg Energy Consumed (KCal)</th>
+                    <th>Avg Maintanance Calories</th>
+                    <th>Avg Energy Burnt from activities</th>
+                    <th>Avg Calorific Surpluss (+) /Deficit (-)</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+            {% for month in monthly %}
+            <tr>
+                <td class="table-light">{{ month["month"] }}</td>
+                <td class="table-secondary">{{ month["weight"] | round | int }} Kg</td>
+                <td class="table-success">{{ month["protien"] | round | int | gkg }} : {{ month["carbohydrate"] | round | int | gkg }} : {{ month["fat"] | round | int | gkg }}</td>
+                <td class="table-success">+{{ month["energy"]  | round | int | kcal }}</td>
+                <td class="table-warning">-{{ month["basic_maint"] | round | int | kcal }}</td>
+                <td class="table-warning">-{{ month["energy_out"] | round | int | kcal }}</td>
+                <td class="table-dark">{{ (month["energy"] - month["basic_maint"] - month["energy_out"]) | round | int | kcal }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+</div>
+
+{% else %}
+
+<p>You are yet to start logging your <a href="/diet_diary">diet</a> and <a href="/exercise_diary">activity</a>.</p>
+
+{% endif %}
+{% endblock %}

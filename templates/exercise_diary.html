@@ -1,0 +1,166 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Exercise Diary
+{% endblock %}
+
+{% block head %}
+
+{% endblock%}
+
+{% block main %}
+    <h1>Exercsie Diary</h1>
+
+
+
+    <div class="card" style="width: 50rem; margin-left: auto; margin-right: auto;">
+        <div class="card-header">
+          <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+                <form action="/change_day" method="post">
+                    <input type="hidden" name="day" value="-1">
+                    <button type="submit" class="nav-link">{{ session["date"] | date_format_previousday }}</button>
+                </form>        </li>
+            <li class="nav-item">
+                {% if session["date"] == session["today"] %}
+                <form action="/change_day" method="post">
+                    <input type="hidden" name="day" value="0">
+                    <button type="submit" class="nav-link active" disabled>Today</button>
+                </form>
+                {% else %}
+                <form action="/change_day" method="post">
+                    <input type="hidden" name="day" value="0">
+                    <button type="submit" class="nav-link active">Return to Today</button>
+                </form>
+                {% endif %}
+            </li>
+            <li class="nav-item">
+                {% if session["date"] < session["today"] %}
+                <form action="/change_day" method="post">
+                    <input type="hidden" name="day" value="1">
+                    <button type="submit" class="nav-link">{{ session["date"] | date_format_nextday }}</button>
+                </form>
+                {% endif %}       
+            </li>
+          </ul>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">Exercise done on {{ session["date"] | date_format }}</h5>
+          <p><i>Add exercise using the below list of activities</i></p>
+          <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Intensity</th>
+                    <th>Time</th>
+                    <th>Energy</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activity in activities %}
+                <tr>
+                    <td>{{ activity["exercise_name"] }}</td>
+                    <td>{{ activity["intensity"] }}</td>
+                    <td>{{ activity["time"] | hrs_mins }}</td>
+                    <td>{{ activity["energy"] | int | kcal }}</td>
+                    <td>
+                        <form action="/activity_remove" method="post">
+                            <input type="hidden" id="id" name="activity_id" value='{{ activity["id"] }}'>
+                            <button type="submit">-</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Total</td>
+                    <td></td>
+                    <td>{{ activities | sum(attribute="time") | hrs_mins }}</td>
+                    <td>{{ activities | sum(attribute="energy") | int | kcal }}</td>
+
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+            
+        </div>
+        <div class="card-footer">
+            <h5 class="card-title">Custom activity</h5>
+            <p><i>If you have completed an activity with a measured calory burn, add it below</i></p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Name
+                        </th>
+                        <th>
+                            Intensity
+                        </th>
+                        <th>
+                            Energy Burnt
+                        </th>
+                        <th>
+                            Time
+                        </th>
+                    </tr>
+                    <tr>
+                        <form action="/activity_custom_add" method="post">
+                            <td>
+                                <input name="name" placeholder="required" required style='width:100%'>
+                            </td>
+                            <td>
+                                <input name="intensity" placeholder="optional" style='width:100%'>
+                            </td>
+                            <td>
+                                <input name="energy" placeholder="energy (KCal)" required style='width:100%' type="number">
+                            </td>
+                            <td>
+                                <input name="time" type="number" placeholder="time (mins)" required style='width:100%'>
+                            </td>
+                            <td>
+                                <button type="submit">+</button>
+                            </td>
+                        </form>
+                    </tr>
+                </thead>
+            </table>
+          </div>
+      </div>
+<br>
+      <div class="card text-center">
+
+        <div class="card-body">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Intensity</th>
+                        <th>Energy Burn per hour</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                
+                    {% for exercise in exercises %}
+                    <tr>
+                        <form action="/activity_add" method="post">
+                            <td>{{ exercise["exercise_name"] }}<input type="hidden" id="exercise_name" name="name" value='{{ exercise["exercise_name"] }}'></td>
+                            <td>{{ exercise["intensity"] }}<input type="hidden" id="intensity" name="intentisy" value='{{ exercise["intensity"] }}'></td>
+                            <td>{{ (exercise["energy_burn_factor"] * session["weight"]) | int | kcal }}</td>
+                            <td><input autocomplete="off" id="time" name="time" placeholder="time (mins)" required type="number"></td>
+                            <td>
+                                <input type="hidden" id="id" name="id" value='{{ exercise["id"] }}'>
+                                <input type="hidden" name="energy_burn_factor" value="{{ exercise['energy_burn_factor'] }}">
+                                <button type="submit">+</button>
+                            </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        </div>
+
+{% endblock %}

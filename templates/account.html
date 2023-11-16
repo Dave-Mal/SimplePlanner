@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Account
+{% endblock %}
+
+{% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+{% endblock %}
+{% block main %}
+    Account
+
+    <table>
+            <tr>
+                <th>Name</th>
+                <td>{{ session["username"] }}</td>
+            </tr>
+                <th>Height</th>
+                <td>{{ session["height"] }}cm</td>
+            </tr>
+            <tr>
+                <th>Weight</th>
+                <td>{{ session["weight"] }}Kg</td>
+                <form action="/updateweight" method="post">
+                    <td><input autocomplete="off" autofocus name="weight" placeholder="Weight (Kg)" type="text">
+                    <button type="submit">Submit</button></td>
+                </form>
+            </tr>
+            <tr>
+                <th>BMI</th>
+                <td>{{ (session["weight"] / ((session["height"] / 100) * (session["height"] / 100))) | round(1, 'common') }} </td>
+            </tr>
+    </table>
+
+    BMI
+
+    <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+
+    <script>
+    const xValues = [];
+    const yValues = [];
+    generateData('x * {{ ((session["height"] / 100) * (session["height"] / 100)) }}', 17, 33, 1);
+    
+    new Chart("myChart", {
+      type: "line",
+      data: {
+        labels: xValues,
+        datasets: [{
+          fill: false,
+          pointRadius: 1,
+          borderColor: "rgba(255,0,0,0.5)",
+          data: yValues
+        }]
+      },    
+      options: {
+        scales: {
+            yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Weight (Kg)'
+                }
+            }],
+            xAxes : [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'BMI'
+                }
+            }]
+        },
+        legend: {display: false},
+        title: {
+          display: true,
+          text: 'Weight vs BMI for somoeone {{ (session["height"] / 100) }}m',
+          fontSize: 16
+        }
+      }
+    });
+    function generateData(value, i1, i2, step = 1) {
+      for (let x = i1; x <= i2; x += step) {
+        yValues.push(eval(value));
+        xValues.push(x);
+      }
+    }
+    </script>
+
+{% endblock %}
