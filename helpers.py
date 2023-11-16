@@ -8,7 +8,6 @@ def dict_factory(cursor, row):
     return {key: value for key, value in zip(fields, row)}
 
 
-
 def login_required(f):
     """
     Decorate routes to require login.
@@ -22,6 +21,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -30,32 +30,41 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
 def kcal(value):
     """Format value as KCal."""
     return f"{value:,} KCal"
+
 
 def gkg(value):
     if value < 1000:
         return f"{value:}g"
     else:
         return f"{float(value/1000):,.1f}Kg"
-    
+
+
 def date_format(value):
-    months = ("January","February","March","April","May","June","July","August","September","October","November","December")
+    months = ("January", "February", "March", "April", "May", "June",
+              "July", "August", "September", "October", "November", "December")
     month = months[value.month-1]
     return "{} {} {}".format(value.day, month, value.year)
+
 
 def date_format_previousday(value):
     value = value - timedelta(days=1)
-    months = ("January","February","March","April","May","June","July","August","September","October","November","December")
+    months = ("January", "February", "March", "April", "May", "June",
+              "July", "August", "September", "October", "November", "December")
     month = months[value.month-1]
     return "{} {} {}".format(value.day, month, value.year)
 
+
 def date_format_nextday(value):
     value = value + timedelta(days=1)
-    months = ("January","February","March","April","May","June","July","August","September","October","November","December")
+    months = ("January", "February", "March", "April", "May", "June",
+              "July", "August", "September", "October", "November", "December")
     month = months[value.month-1]
     return "{} {} {}".format(value.day, month, value.year)
+
 
 def hrs_mins(value):
     if value < 60:
@@ -65,23 +74,27 @@ def hrs_mins(value):
     else:
         return (f"{int(value / 60)} hr {value % 60} min")
 
+
 def mifflin_st_jeor(weight, height, age, sex):
     if sex == 'm':
-        #Mifflin-St Jeor to calculate RMR(Male)
+        # Mifflin-St Jeor to calculate RMR(Male)
         rmr = int((10 * weight) + (6.25 * height) - (5 * age) + 5)
         return rmr
     elif sex == 'f':
-        #Mifflin-St Jeor to calculate RMR(Female)
+        # Mifflin-St Jeor to calculate RMR(Female)
         rmr = int((10 * weight) + (6.25 * height) - (5 * age) - 161)
         return rmr
     else:
         print("error in mifflin_st_jeor")
         return 1
-    
+
+
 def calculate_age(birthdate):
-    days_in_year = 365.2425   
-    age = int((date.today() - datetime.strptime(birthdate, '%Y-%m-%d').date()).days / days_in_year)
+    days_in_year = 365.2425
+    age = int((date.today() - datetime.strptime(birthdate,
+              '%Y-%m-%d').date()).days / days_in_year)
     return age
+
 
 def create_session(id, username, height, weight, sex, birthday):
     session["user_id"] = id
@@ -90,17 +103,21 @@ def create_session(id, username, height, weight, sex, birthday):
     session["weight"] = int(weight)
     session["sex"] = sex
     session["birthday"] = birthday
-    session["rmr"] = mifflin_st_jeor(session["weight"], session["height"], calculate_age(session["birthday"]), session["sex"])
+    session["rmr"] = mifflin_st_jeor(session["weight"], session["height"], calculate_age(
+        session["birthday"]), session["sex"])
     session["date"] = date.today()
     session["today"] = date.today()
     session["food_type"] = "%"
     session["meal_creation"] = []
     session["toasts"] = []
 
+
 def calculate_age(birthdate):
-    days_in_year = 365.2425   
-    age = int((date.today() - datetime.strptime(birthdate, '%Y-%m-%d').date()).days / days_in_year)
+    days_in_year = 365.2425
+    age = int((date.today() - datetime.strptime(birthdate,
+              '%Y-%m-%d').date()).days / days_in_year)
     return age
+
 
 def index_toasts():
     x = 0
@@ -109,18 +126,20 @@ def index_toasts():
         x = x + 1
     return 0
 
+
 def add_toast(message, type=0):
     # Add message to a dictionary
     this_toast = {
         "message": message,
-        "type" : type,           # 0 is a (red alert)
-        "date" : datetime.now().strftime("%a %d %b %Y %H:%M")
+        "type": type,           # 0 is a (red alert)
+        "date": datetime.now().strftime("%a %d %b %Y %H:%M")
     }
     # Add dictionary to list in session
     session["toasts"].append(this_toast)
-    
+
     index_toasts()
     return 0
+
 
 def check_values(source, **kwargs):
     # kwargs dict
@@ -141,7 +160,7 @@ def check_values(source, **kwargs):
                 result[arg] = source[arg].title()
                 continue
     if "zero" in kwargs:
-        for arg in kwargs["zero"]:   
+        for arg in kwargs["zero"]:
             if not source[arg]:
                 add_toast(f"{arg.title()} can not be blank")
                 err = 1
@@ -150,12 +169,14 @@ def check_values(source, **kwargs):
             try:
                 result[arg] = float(source[arg])
             except:
-                add_toast(f"{source[arg]} is not a valid value for {arg.title()}")
+                add_toast(
+                    f"{source[arg]} is not a valid value for {arg.title()}")
                 err = 1
                 errors.append(arg)
                 continue
             if result[arg] < 0:
-                add_toast(f"Please enter a value for {arg.title()} larger than 0")
+                add_toast(
+                    f"Please enter a value for {arg.title()} larger than 0")
                 err = 1
                 errors.append(arg)
     if "positive" in kwargs:
@@ -168,7 +189,8 @@ def check_values(source, **kwargs):
             try:
                 result[arg] = float(source[arg])
             except:
-                add_toast(f"{source[arg]} is not a valid value for {arg.title()}")
+                add_toast(
+                    f"{source[arg]} is not a valid value for {arg.title()}")
                 err = 1
                 errors.append(arg)
                 continue
@@ -182,7 +204,6 @@ def check_values(source, **kwargs):
         raise ValueError(f"Errors found in the following values {errors}")
 
 
-
 class person:
     def __init__(self, username, user_id, height, weight, sex, birthday):
         self.name = username
@@ -191,18 +212,18 @@ class person:
         self.sex = sex
         self.weight = weight
         self.height = height
-    
+
     def age(self):
-        return int((date.today() - datetime.strptime(self.birthday , '%Y-%m-%d').date()).days / 365.2425)
-    
+        return int((date.today() - datetime.strptime(self.birthday, '%Y-%m-%d').date()).days / 365.2425)
+
     def rmr(self):
         if self.sex == 'm':
-            #Mifflin-St Jeor to calculate RMR(Male)
+            # Mifflin-St Jeor to calculate RMR(Male)
             return int((10 * self.weight) + (6.25 * self.height) - (5 * self.age) + 5)
         elif self.sex == 'f':
-            #Mifflin-St Jeor to calculate RMR(Female)
+            # Mifflin-St Jeor to calculate RMR(Female)
             return int((10 * self.weight) + (6.25 * self.height) - (5 * self.age) - 161)
-        
+
     def weight(self, units):
         if units == 'kg':
             return f'{self.weight}Kg'
@@ -210,5 +231,3 @@ class person:
             return f'{self.weight * 2.2}lbs'
         else:
             return "Units must be 'kg' or 'lbs'"
- 
-
