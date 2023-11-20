@@ -2,28 +2,26 @@ from datetime import date, timedelta, datetime
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import person, check_values, add_toast, calculate_age, create_session, dict_factory, admin_required, login_required, kcal, gkg, date_format, date_format_previousday, date_format_nextday, mifflin_st_jeor, index_toasts, hrs_mins
 import sqlite3
+import helpers
 
 # Configure application
 app = Flask(__name__)
-
-
 app.config["SESSION_TYPE"] = 'filesystem'
 app.config["SESSION_PERMANENT"] = False
 Session(app)
 
 # Custom filters
-app.jinja_env.filters["kcal"] = kcal
-app.jinja_env.filters["gkg"] = gkg
-app.jinja_env.filters["date_format"] = date_format
-app.jinja_env.filters["date_format_previousday"] = date_format_previousday
-app.jinja_env.filters["date_format_nextday"] = date_format_nextday
-app.jinja_env.filters["hrs_mins"] = hrs_mins
+app.jinja_env.filters["kcal"] = helpers.kcal
+app.jinja_env.filters["gkg"] = helpers.gkg
+app.jinja_env.filters["date_format"] = helpers.date_format
+app.jinja_env.filters["date_format_previousday"] = helpers.date_format_previousday
+app.jinja_env.filters["date_format_nextday"] = helpers.date_format_nextday
+app.jinja_env.filters["hrs_mins"] = helpers.hrs_mins
 
 # Connect to database
 db = sqlite3.connect("data.db", check_same_thread=False)
-db.row_factory = dict_factory
+db.row_factory = helpers.dict_factory
 
 
 @app.route("/")
@@ -56,8 +54,8 @@ def login():
             return render_template("login.html", failure="Unable to log in, invalid username and/or password")
 
         # Remember which user has logged in
-        create_session(user["id"], user["username"], user["height"],
-                       user["weight"], user["sex"], user["birthday"])
+        helpers.create_session(user["id"], user["username"], user["height"],
+                               user["weight"], user["sex"], user["birthday"])
 
         # Sucessful login - Redirect user to home page
         return redirect("/")
@@ -118,7 +116,7 @@ def register():
         db.commit()
         user = cur.execute("SELECT * FROM users WHERE id = ?",
                            (cur.lastrowid, )).fetchone()
-        create_session(user["id"], user["username"], user["height"],
+        helpers.create_session(user["id"], user["username"], user["height"],
                        user["weight"], user["sex"], user["birthday"])
         cur.close()
 
@@ -145,17 +143,17 @@ def logout():
 
 
 @app.route("/account")
-@login_required
+@helpers.login_required
 def account():
     return render_template("account.html")
 
 
 @app.route("/customfood", methods=["GET", "POST"])
-@login_required
+@helpers.login_required
 def custom_food():
     if request.method == "POST":
         try:
-            values = check_values(request.form.to_dict(flat=True), string=["name"], zero=[
+            values = helpers.check_values(request.form.to_dict(flat=True), string=["name"], zero=[
                                   "energy", "protien", "carbohydrate", "fat"], positive=["amount"])
         except Exception as e:
             print(f"/customfood ERROR: {e}")
@@ -167,14 +165,14 @@ def custom_food():
             fat = round(values["fat"] / values["amount"] * 100, 2)
             cur = db.cursor()
             if cur.execute("INSERT INTO custom_food (user_id, food_name, food_type_id, energy, protien, carbohydrate, fat) VALUES (?, ?, ?, ?, ?, ?, ?)", (session["user_id"], request.form.get("name").title(), request.form.get("food_type"), energy, protien, carbs, fat)).rowcount == 1:
-                add_toast(
+                helpers.add_toast(
                     f"{request.form.get('name').title()} created and added as a custom food item", 1)
                 db.commit()
             else:
-                add_toast(f"Food not added to database, please try again")
+                helpers.add_toast(f"Food not added to database, please try again")
             cur.close()
             session["meal_creation"] = []
-        return redirect(request.referrer)
+        return redirect("/diet_diary")
 
     else:
         cur = db.cursor()
@@ -187,26 +185,26 @@ def custom_food():
 
 
 @app.route("/removecustomfood", methods=["POST"])
-@login_required
+@helpers.login_required
 def remove_custom_food():
     cur = db.cursor()
     item = cur.execute("SELECT * FROM custom_food WHERE id = ?",
                        (request.form.get("id"), )).fetchone()
     if item:
         if cur.execute("DELETE FROM custom_food WHERE id = ?", (request.form.get("id"), )).rowcount == 1:
-            add_toast(f"{item['food_name']} removed as a custom food item", 1)
+            helpers.add_toast(f"{item['food_name']} removed as a custom food item", 1)
     else:
-        add_toast("Food item not removed, please refresh and try again")
+        helpers.add_toast("Food item not removed, please refresh and try again")
     db.commit()
     cur.close()
     return redirect(request.referrer)
 
 
 @app.route("/standardfood", methods=["POST"])
-@admin_required
+@helpers.admin_required
 def standard_food():
     try:
-        values = check_values(request.form.to_dict(flat=True), string=["name"], zero=[
+        values = helpers.check_values(request.form.to_dict(flat=True), string=["name"], zero=[
                               "energy", "protien", "carbohydrate", "fat"], positive=["amount"])
     except Exception as e:
         print(f"/standardfood ERROR: {e}")
@@ -218,14 +216,14 @@ def standard_food():
         fat = round(values["fat"] / values["amount"] * 100, 2)
         cur = db.cursor()
         if cur.execute("INSERT INTO standard_food (food_name, food_type_id, energy, protien, carbohydrate, fat) VALUES (?, ?, ?, ?, ?, ?)", (request.form.get("name"), request.form.get("food_type"), energy, protien, carbs, fat)).rowcount < 1:
-            add_toast(f"Food not added to database, please try again")
+            helpers.add_toast(f"Food not added to database, please try again")
         db.commit()
         cur.close()
     return redirect(request.referrer)
 
 
 @app.route("/update_standard_food", methods=["POST"])
-@admin_required
+@helpers.admin_required
 def update_standard_food():
     cur = db.cursor()
     cur.execute("""UPDATE standard_food
@@ -237,7 +235,7 @@ def update_standard_food():
 
 
 @app.route("/delete_standard_food", methods=["POST"])
-@admin_required
+@helpers.admin_required
 def delete_standard_food():
     cur = db.cursor()
     cur.execute("DELETE FROM standard_food WHERE id = ?",
@@ -248,12 +246,12 @@ def delete_standard_food():
 
 
 @app.route("/updateweight", methods=["POST"])
-@login_required
+@helpers.login_required
 def update_weight():
     err = 0
     # Updates the user's recorded weight - if an update has already been logged today, the weight for that change is updated.
     try:
-        values = check_values(request.form.to_dict(
+        values = helpers.check_values(request.form.to_dict(
             flat=True), positive=["weight"])
     except Exception as e:
         print(f"/updateweight ERROR: {e}")
@@ -264,14 +262,14 @@ def update_weight():
         # If entry for the user today is already present - update the weight field in that record
         if cur.execute("SELECT * FROM weight WHERE user_id = ? and date = ?", ((session["user_id"]), date.today())).fetchone():
             if cur.execute("UPDATE weight SET weight = ? WHERE user_id = ? AND date = ?", ((session["weight"]), (session["user_id"]), date.today())).rowcount != 1:
-                add_toast(
+                helpers.add_toast(
                     f"Weight not updated, please try again, check {session['weight']} is a valid value")
                 err = 1
 
         # If no update for today has been logged - create a new record
         else:
             if cur.execute("INSERT INTO weight (user_id, date, weight) VALUES (?, ?, ?)", ((session["user_id"]), date.today(), session["weight"])).rowcount != 1:
-                add_toast(
+                helpers.add_toast(
                     f"Weight not updated, please try again, check {session['weight']} is a valid value")
                 err = 1
 
@@ -279,7 +277,7 @@ def update_weight():
         if err == 0:
             cur.execute("UPDATE users SET weight = ? WHERE id = ?",
                         (session["weight"], session["user_id"]))
-            add_toast(f"Weight updated to {session['weight']}Kg", 1)
+            helpers.add_toast(f"Weight updated to {session['weight']}Kg", 1)
         db.commit()
         cur.close()
     finally:
@@ -287,12 +285,12 @@ def update_weight():
 
 
 @app.route("/diet_diary", methods=["GET", "POST"])
-@login_required
+@helpers.login_required
 def diet_diary():
     if request.method == "POST":
         try:
-            values = check_values(request.form.to_dict(flat=True), string=["name"], zero=[
-                                  "energy", "protien", "carbohydrate", "fat"], positive=["amount"])
+            values = helpers.check_values(request.form.to_dict(flat=True), string=["name"], zero=[
+                "energy", "protien", "carbohydrate", "fat"], positive=["amount"])
         except Exception as e:
             print(f"/diet_diary ERROR: {e}")
             pass
@@ -330,14 +328,14 @@ def diet_diary():
 
 
 @app.route("/change_food_type", methods=["POST"])
-@login_required
+@helpers.login_required
 def change_food_type():
     session["food_type"] = request.form.get("id")
     return redirect(request.referrer)
 
 
 @app.route("/removefromdiet", methods=["POST"])
-@login_required
+@helpers.login_required
 def remove_from_diet():
     cur = db.cursor()
     cur.execute("DELETE FROM consumption WHERE id = ?",
@@ -348,7 +346,7 @@ def remove_from_diet():
 
 
 @app.route("/mealcreation", methods=["GET", "POST"])
-@login_required
+@helpers.login_required
 def meal_creation():
     if request.method == "POST":
         return redirect("/mealcreation")
@@ -375,7 +373,7 @@ def meal_creation():
 
 
 @app.route("/build_meal", methods=["POST"])
-@login_required
+@helpers.login_required
 def build_meal():
     item = {}
     item["food_name"] = request.form.get("food_name")
@@ -397,7 +395,7 @@ def build_meal():
 
 
 @app.route("/build_meal_remove", methods=["POST"])
-@login_required
+@helpers.login_required
 def build_meal_remove():
     del session["meal_creation"][int(request.form.get("id"))]
     x = 0
@@ -408,7 +406,7 @@ def build_meal_remove():
 
 
 @app.route("/change_day", methods=["POST"])
-@login_required
+@helpers.login_required
 def change_day():
     if request.form.get("day") == "0":
         session["date"] = session["today"]
@@ -419,7 +417,7 @@ def change_day():
 
 
 @app.route("/admin_food")
-@admin_required
+@helpers.admin_required
 def admin_food():
     cur = db.cursor()
     standard_foods = cur.execute("SELECT standard_food.id, standard_food.food_name, standard_food.energy, standard_food.protien, standard_food.carbohydrate, standard_food.fat, food_type.type, food_type.id AS food_type_id FROM standard_food INNER JOIN food_type ON standard_food.food_type_id = food_type.id ORDER BY food_name").fetchall()
@@ -430,7 +428,7 @@ def admin_food():
 
 
 @app.route("/admin_users")
-@admin_required
+@helpers.admin_required
 def admin_users():
     cur = db.cursor()
     users = cur.execute("SELECT * FROM users").fetchall()
@@ -439,7 +437,7 @@ def admin_users():
 
 
 @app.route("/admin_exercises")
-@admin_required
+@helpers.admin_required
 def admin_exercises():
     cur = db.cursor()
     exercises = cur.execute(
@@ -449,7 +447,7 @@ def admin_exercises():
 
 
 @app.route("/delete_user", methods=["POST"])
-@admin_required
+@helpers.admin_required
 def delete_user():
     deleted_rows = {}
     cur = db.cursor()
@@ -472,16 +470,17 @@ def delete_user():
 
 
 @app.route("/overview")
-@login_required
+@helpers.login_required
 def overview():
+    # Retrieve data from the database for diet, weight and activity to combine and display as anoverview
     cur = db.cursor()
-    daily = cur.execute("""SELECT date, sum(amount) AS amount, sum(energy) AS energy, sum(protien) AS protien, sum(carbohydrate) AS carbohydrate, sum(fat) AS fat
+    daily_diet = cur.execute("""SELECT date, sum(amount) AS amount, sum(energy) AS energy, sum(protien) AS protien, sum(carbohydrate) AS carbohydrate, sum(fat) AS fat
                             FROM consumption 
                             WHERE user_id = ?
                             GROUP BY date
                             ORDER BY date DESC
                             LIMIT 7""", (session["user_id"], )).fetchall()
-    monthly = cur.execute("""SELECT STRFTIME("%m-%Y", date) AS month, avg(amount) AS amount, avg(energy) AS energy, avg(protien) AS protien, avg(carbohydrate) AS carbohydrate, avg(fat) AS fat
+    monthly_diet = cur.execute("""SELECT STRFTIME("%Y-%m", date) AS month, avg(amount) AS amount, avg(energy) AS energy, avg(protien) AS protien, avg(carbohydrate) AS carbohydrate, avg(fat) AS fat
                             FROM (SELECT date, sum(amount) AS amount, sum(energy) AS energy, sum(protien) AS protien, sum(carbohydrate) AS carbohydrate, sum(fat) AS fat
                             FROM consumption 
                             WHERE user_id = ?
@@ -491,66 +490,71 @@ def overview():
     daily_weight = cur.execute(
         "SELECT * FROM weight where user_id = ?", (session["user_id"], )).fetchall()
     monthly_weight = cur.execute(
-        "SELECT STRFTIME('%m-%Y', date) AS month, AVG(weight) AS weight FROM weight WHERE user_id = ?  GROUP BY month", (session["user_id"], )).fetchall()
+        "SELECT STRFTIME('%Y-%m', date) AS month, AVG(weight) AS weight FROM weight WHERE user_id = ?  GROUP BY month", (session["user_id"], )).fetchall()
     daily_activity = cur.execute(
         "SELECT date, sum(energy) AS energy FROM activity WHERE user_id = ? GROUP BY date ORDER BY date DESC LIMIT 7", (session["user_id"], )).fetchall()
     monthly_activity = cur.execute(
-        "SELECT STRFTIME('%m-%Y', date) AS month, AVG(energy) AS energy FROM activity WHERE user_id = ?  GROUP BY month", (session["user_id"], )).fetchall()
+        "SELECT STRFTIME('%Y-%m', date) AS month, AVG(energy) AS energy FROM activity WHERE user_id = ?  GROUP BY month", (session["user_id"], )).fetchall()
     cur.close()
 
-    for day in daily:
+    # If activity or diet information is not in the database, return without the data
+    if not daily_activity or not daily_diet:
+        return render_template("overview.html")
+
+    # Combine diet, weight and activity data together
+    for day in daily_diet:
         for x in daily_weight:
             if day["date"] >= x["date"]:
                 day["weight"] = x["weight"]
             elif 'weight' not in day:
                 day["weight"] = x["weight"]
-        day["rmr"] = mifflin_st_jeor(day["weight"], session["height"], calculate_age(
+        day["rmr"] = helpers.mifflin_st_jeor(day["weight"], session["height"], helpers.calculate_age(
             session["birthday"]), session["sex"])
         day["basic_maint"] = day["rmr"] * 1.2
         for y in daily_activity:
-            if not any(day["date"] == y["date"] for day in daily):
-                daily.append({"date": y["date"], "amount": 0, "energy": 0,
-                             "protien": 0, "carbohydrate": 0, "fat": 0})
+            if not any(day["date"] == y["date"] for day in daily_diet):
+                daily_diet.append({"date": y["date"], "amount": 0, "energy": 0,
+                                   "protien": 0, "carbohydrate": 0, "fat": 0})
             if day["date"] == y["date"]:
                 day["energy_out"] = y["energy"]
             elif "energy_out" not in day:
                 day["energy_out"] = 0
 
-    daily = sorted(daily, key=lambda d: d["date"], reverse=True)
+    daily_diet = sorted(daily_diet, key=lambda d: d["date"], reverse=True)
 
-    for day in daily:
+    for day in daily_diet:
         day["date"] = datetime.strptime(
             day["date"], '%Y-%m-%d').strftime("%a %d %b %Y")
 
-    for month in monthly:
+    for month in monthly_diet:
         for x in monthly_weight:
             if month["month"] >= x["month"]:
                 month["weight"] = x["weight"]
-            elif 'weight' not in day:
+            elif 'weight' not in month:
                 month["weight"] = x["weight"]
-        month["rmr"] = mifflin_st_jeor(month["weight"], session["height"], calculate_age(
+        month["rmr"] = helpers.mifflin_st_jeor(month["weight"], session["height"], helpers.calculate_age(
             session["birthday"]), session["sex"])
         month["basic_maint"] = month["rmr"] * 1.2
         for y in monthly_activity:
-            if not any(month["month"] == y["month"] for month in monthly):
-                month.append(
+            if not any(month["month"] == y["month"] for month in monthly_diet):
+                monthly_diet.append(
                     {"month": y["month"], "amount": 0, "energy": 0, "protien": 0, "carbohydrate": 0, "fat": 0})
             if month["month"] == y["month"]:
                 month["energy_out"] = y["energy"]
             elif "energy_out" not in month:
                 month["energy_out"] = 0
 
-    monthly = sorted(monthly, key=lambda d: d["month"], reverse=True)
+    monthly_diet = sorted(monthly_diet, key=lambda d: d["month"], reverse=True)
 
-    for month in monthly:
+    for month in monthly_diet:
         month["month"] = datetime.strptime(
-            month["month"], '%m-%Y').strftime("%b %Y")
+            month["month"], '%Y-%m').strftime("%b %Y")
 
-    return render_template("overview.html", daily=daily, monthly=monthly)
+    return render_template("overview.html", daily=daily_diet, monthly=monthly_diet)
 
 
 @app.route("/update_exercise", methods=["POST"])
-@admin_required
+@helpers.admin_required
 def update_exercise():
     cur = db.cursor()
     cur.execute("""UPDATE standard_exercises
@@ -562,13 +566,13 @@ def update_exercise():
 
 
 @app.route("/add_exercise", methods=["POST"])
-@admin_required
+@helpers.admin_required
 def add_exercise():
     # Required: exercise_name & energy_burn_factor
     # Optional: intensity
     try:
-        values = check_values(request.form.to_dict(flat=True), string=[
-                              "exercise_name"], positive=["energy_burn_factor"])
+        values = helpers.check_values(request.form.to_dict(flat=True), string=[
+            "exercise_name"], positive=["energy_burn_factor"])
     except Exception as e:
         print(f"/add_exercise ERROR: {e}")
         pass
@@ -582,10 +586,11 @@ def add_exercise():
 
 
 @app.route("/delete_exercise", methods=["POST"])
-@admin_required
+@helpers.admin_required
 def delete_exercise():
     try:
-        values = check_values(request.form.to_dict(flat=True), positive=["id"])
+        values = helpers.check_values(
+            request.form.to_dict(flat=True), positive=["id"])
     except Exception as e:
         print(f"/delete_exercise ERROR: {e}")
         pass
@@ -599,18 +604,18 @@ def delete_exercise():
 
 
 @app.route("/rm_toast", methods=["POST"])
-@login_required
+@helpers.login_required
 def rm_toast():
     if request.form.get("id") == "*":
         session["toasts"] = []
     else:
         del session["toasts"][int(request.form.get("id"))]
-        index_toasts()
+        helpers.index_toasts()
     return redirect(request.referrer)
 
 
 @app.route("/exercise_diary")
-@login_required
+@helpers.login_required
 def exercise_diary():
     cur = db.cursor()
     exercises = cur.execute(
@@ -622,10 +627,10 @@ def exercise_diary():
 
 
 @app.route("/activity_add", methods=["POST"])
-@login_required
+@helpers.login_required
 def activity_add():
     try:
-        values = check_values(request.form.to_dict(
+        values = helpers.check_values(request.form.to_dict(
             flat=True), zero=["id"], positive=["time"])
     except Exception as e:
         print(f"/activity_add ERROR: {e}")
@@ -644,11 +649,11 @@ def activity_add():
 
 
 @app.route("/activity_custom_add", methods=["POST"])
-@login_required
+@helpers.login_required
 def activity_custom_add():
     try:
-        values = check_values(request.form.to_dict(flat=True), string=[
-                              "name"], zero=["id"], positive=["time"])
+        values = helpers.check_values(request.form.to_dict(flat=True), string=[
+            "name"], positive=["time", "energy"])
     except Exception as e:
         print(f"/activity_custom_add ERROR: {e}")
         pass
@@ -662,10 +667,10 @@ def activity_custom_add():
 
 
 @app.route("/activity_remove", methods=["POST"])
-@login_required
+@helpers.login_required
 def activity_remove():
     try:
-        values = check_values(request.form.to_dict(
+        values = helpers.check_values(request.form.to_dict(
             flat=True), positive=["activity_id"])
     except Exception as e:
         print(f"/activity_custom_add ERROR: {e}")

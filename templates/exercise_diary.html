@@ -87,45 +87,8 @@ Exercise Diary
 
     </div>
     <div class="card-footer">
-        <h5 class="card-title">Custom activity</h5>
-        <p><i>If you have completed an activity with a measured calory burn, add it below</i></p>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        Name
-                    </th>
-                    <th>
-                        Intensity
-                    </th>
-                    <th>
-                        Energy Burnt
-                    </th>
-                    <th>
-                        Time
-                    </th>
-                </tr>
-                <tr>
-                    <form action="/activity_custom_add" method="post">
-                        <td>
-                            <input name="name" placeholder="required" required style='width:100%'>
-                        </td>
-                        <td>
-                            <input name="intensity" placeholder="optional" style='width:100%'>
-                        </td>
-                        <td>
-                            <input name="energy" placeholder="energy (KCal)" required style='width:100%' type="number">
-                        </td>
-                        <td>
-                            <input name="time" type="number" placeholder="time (mins)" required style='width:100%'>
-                        </td>
-                        <td>
-                            <button type="submit">+</button>
-                        </td>
-                    </form>
-                </tr>
-            </thead>
-        </table>
+        <button data-bs-toggle="modal" data-bs-target="#CustomActivityModal">Add Custom Activity</button>
+ 
     </div>
 </div>
 <br>
@@ -163,6 +126,61 @@ Exercise Diary
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="CustomActivityModal" tabindex="-1" aria-labelledby="CustomActivityLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="CustomActivityLabel">Custom activity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Add Custom Activity form -->
+                <p><i>If you have completed an activity with a measured calory burn e.g. recorded on a smart watch, add it below</i></p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <th>
+                                Intensity
+                            </th>
+                            <th>
+                                Energy Burnt
+                            </th>
+                            <th>
+                                Time
+                            </th>
+                        </tr>
+                        <tr>
+                            <form action="/activity_custom_add" method="post">
+                                <td>
+                                    <input name="name" placeholder="required" required style='width:100%'>
+                                </td>
+                                <td>
+                                    <input name="intensity" placeholder="optional" style='width:100%'>
+                                </td>
+                                <td>
+                                    <input name="energy" placeholder="energy (KCal)" required style='width:100%' type="number">
+                                </td>
+                                <td>
+                                    <input name="time" type="number" placeholder="time (mins)" required style='width:100%'>
+                                </td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="submit">Add</button>
+            </div>
+        </form>
+        </div>
     </div>
 </div>
 

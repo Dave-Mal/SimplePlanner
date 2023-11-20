@@ -125,7 +125,7 @@ Food Admin
                     </td>
                     <td>
                         <form action="/delete_standard_food" method="post"
-                            onsubmit="return confirm('Are you sure you wish to delete {{ food['food_name'] }}?');">
+                            onsubmit="return confirm('Are you sure you wish to delete {{ food.food_name }}?');">
                             <input type="hidden" name="id" value="{{ food['id'] }}">
                             <button type="submit">Delete</button>
                         </form>
