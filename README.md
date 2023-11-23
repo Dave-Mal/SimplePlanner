@@ -1,31 +1,37 @@
 # SimplePlanner
 #### Video Demo:  <URL HERE>
-#### Description: CS50x final project - SimplePlanner, a quick and simple diet and activity tracker
+#### Description: CS50x final project SimplePlanner, a quick and simple diet and activity tracker
 #### The goal in the creation of the system was to:
->Allow the tracking of calorific intake and expendature without the headache.
+>*Allow the tracking of calorific intake and expendature without the headache.*
 
-From this general idea, the main goals were to:
->- Simplify tracking the nutritional value of home cooked meals
->- Avoid going into the weeds around the subject
->- Remove information not needed for the average user of a diet tracking system
->- Give a general awareness of how balanced a user's activity and diet are
+From this idea, the main goals were to:
+- Simplify tracking the nutritional value of home cooked meals
+- Avoid going into the weeds around the subject
+- Remove information not needed for the average user of a diet tracking system
+- Give a general awareness of how balanced a user's activity and diet are
 
 
 ### Technology
-My CS50x project utilises Python, Flask and SQLITE3 to create a diet and activity tracker website.
+My CS50x project utilises Python, Flask, SQLITE3 and HTML to create a diet and activity tracker website.
 
 
 # Python
-## Modules - Imported to aid the function of the system
+## Imported Modules
 
-- datetime: Used to manipulate date types
-- flask: Used to create a flask app
-- flask_session: Allows the creation of a temporary flask session
-- werkzeug.security: Used the encryption tool to create and login system
-- sqlite3: To enable connection and communication to an SQLITE3 database
-- functools: To create a wrapper to secure access to web pages to specific user types
+Imported to aid the function of the system
+
+|Module|Useage|Ref|
+|:---|:---|:---|
+|datetime|Used to manipulate date types|[python.org](https://docs.python.org/3/library/datetime.html)|
+|flask|Used to create a flask app|[flask.palletsprojects.com](https://flask.palletsprojects.com/en/2.3.x/api/#flask.Flask)|
+|flask_session|Allows the creation of a temporary flask session|[flask-session.readthedocs.io](https://flask-session.readthedocs.io/en/latest/)|
+|werkzeug.security|Used the encryption tool to create and login system|[werkzeug.palletsprojects.com](https://werkzeug.palletsprojects.com/en/2.3.x/utils/#module-werkzeug.security)|
+|sqlite3|To enable connection and communication to an SQLITE3 database|[sqlite.org](https://www.sqlite.org/index.html)|
+|functools|To create a wrapper to secure access to web pages to specific user types|[python.org](https://docs.python.org/3/library/functools.html)|
+
 
 ## helpers.py
+Functions created in **helpers.py** to aid the core functionality of the system. The operation of these are detailed below.
 
 ### dict_factory()
 
