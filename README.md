@@ -6,28 +6,244 @@
 
 From this general idea, the main goals were to:
 >- Simplify tracking the nutritional value of home cooked meals
+>- Avoid going into the weeds around the subject
 >- Remove information not needed for the average user of a diet tracking system
 >- Give a general awareness of how balanced a user's activity and diet are
->- Avoid going into the weeds around the subject
+
 
 ### Technology
 My CS50x project utilises Python, Flask and SQLITE3 to create a diet and activity tracker website.
 
 
-## Python
-### Modules
-#### datetime: Used to manipulate date types
-#### flask: Used to create a flask app
-#### flask_session: Allows the creation of a temporary flask session
-#### werkzeug.security: Used the encryption tool to create and login system
-#### sqlite3: To enable connection and communication to an SQLITE3 database
-#### functools: To create a wrapper to secure access to web pages to specific user types
+# Python
+## Modules - Imported to aid the function of the system
 
-### helpers.py
-TODO
+- datetime: Used to manipulate date types
+- flask: Used to create a flask app
+- flask_session: Allows the creation of a temporary flask session
+- werkzeug.security: Used the encryption tool to create and login system
+- sqlite3: To enable connection and communication to an SQLITE3 database
+- functools: To create a wrapper to secure access to web pages to specific user types
+
+## helpers.py
+
+### dict_factory()
+
+#### Description
+Used to configure the db.cursor() to return sql output as a list of dictionaries (key=column name)
+
+#### Usage
+```python
+# Connect to database
+db = sqlite3.connect("data.db", check_same_thread=False)
+db.row_factory = helpers.dict_factory
+```
+
+### kcal()
+
+#### Description
+
+Used in Jinja to format values as KCal
+
+#### Useage
+```python
+# returns '100 KCal'
+kcal(100)
+
+# returns '1,100 KCal'
+kcal(1100)
+```
+
+### gkg()
+
+#### Description
+
+Used in Jinja code to format weights in g and Kg
+
+#### Useage
+```python
+# returns '100g'
+gkg(100)
+
+# returns '1Kg'
+gkg(1000)
+
+# returns '2.2Kg'
+gkg(2200)
+
+# returns '1,000Kg'
+gkg(1000000)
+```
+
+### date_format(), date_format_previousday(), date_format_nextday()
+
+#### Description
+
+Used in Jinja code to display formatted dates
+
+#### Useage
+```python
+# returns 1 January 2023
+date_format(2023-1-1) # variable as date type
+
+# returns 31 December 2022
+date_format_previousday(2023-1-1) # variable as date type
+
+# returns 2 January 2023
+date_format_nextday(2023-1-1) # variable as date type
+```
+
+### hrs_mins()
+
+#### Description
+Used in Jinja code to convert an integer (time in mins) to a string to help format the data in a user friendly way.
+
+One argument is required - an Integer.
+
+#### Useage
+```python
+# returns '50 min'
+hrs_mins(50)
+
+# returns '1 hr'
+hrs_mins(60)
+
+# returns '1 hr 30 min'
+hrs_mins(90)
+```
+
+### mifflin_st_jeor()
+
+#### Description
+Calculates a persons daily energy expenditure using weight (Kg), height (cm), age (years) and sex (m/f).
+
+Reference: [Medscape.com](https://reference.medscape.com/calculator/846/mifflin-st-jeor-equation)
+
+#### Useage
+```python
+mifflin_st_jeor(weight, height, age, sex)
+
+# returns '1780'
+mifflin_st_jeor(80, 180, 30, 'm')
+
+# returns '1614'
+mifflin_st_jeor(80, 180, 30, 'f')
+```
+
+### calculate_age()
+
+#### Description
+
+Used to calculate a person's age from a given birthdate
+
+#### Useage
+```python
+# As of November 2023 returns 30
+calculate_age(1990-5-20) # variable as date type
+```
+
+### create_session()
+
+#### Description
+Uses [Flask.Sessions](https://flask.palletsprojects.com/en/2.3.x/api/#sessions) to build a session/dictionary object for the logged in user
+
+#### Useage
+```python
+# returns session[] object for logged in user
+create_session(id, username, height, weight, sex, birthday)
+```
+
+### index_toasts()
+
+#### Description
+Re-indexes the toast dectionary objects held in session["toasts"]
+
+Adds an incremental value for each session["toasts"]["id"] value
+
+#### Useage
+```python
+# returns 0
+index_toasts()
+```
+
+### add_toast()
+
+#### Description
+Used to create [toast popups](https://getbootstrap.com/docs/5.0/components/toasts/)
+
+Appends a new dictionary object to session["toast"] containing the data needed to render a toast via Jinja in HTML
+
+The datetime is set using datetime.now() - current date/time is used
+
+Jinja logic is used to create any toast with type=0 as a warning message, any others are standard alerts.
+
+#### Useage
+```python
+add_toast(message, type=0)
+
+# Assumiung today is the 6th July 2023 at 10:46
+
+# adds {"message": "hi", "type": 0, "date": Thu 6 July 2023 10:46} to session["toast"]
+add_toast("hi")
+
+# adds {"message": "hi", "type": 1, "date": Thu 6 July 2023 10:46} to session["toast"]
+add_toast("hi", 1)
+```
+
+### check_values()
+
+#### Description
+Checks values returned from a HTML POST event are valid as required to be processed
+
+Checks performed:
+- Are strings present
+- Are "zero" values numeric and >= 0
+- Are "positive" values > 0
+
+POST values passed as a dictionary -> source:
+
+    request.form.to_dict(flat=True)
+
+All values are checked, if an error is found the 'err' flag is set to 1
+
+Errors create a toast message with appropriate description
+
+If no errors are found err == 0 and all values are returned in a dictionary
+
+#### Useage
+```python
+check_values(source, **kwargs)
+
+# Checks ["name"] as a string
+# Checks ["energy", "protien", "carbohydrate", "fat"] as being 0 or larger
+# Checks ["amount"] as being positive
+
+# returns dictionary containing key (**kwargs) values (data from source)
+check_values(request.form.to_dict(flat=True), string=["name"], zero=["energy", "protien", "carbohydrate", "fat"], positive=["amount"])
+```
 
 ### data.db
-TODO
+
+#### Description
+A simple database used to store user, catalog and user submitted data.
+
+The python code calls SQL commands to retrieve data from the database, processes the data and serve it to HTML webpages using Jinja. 
+
+Data passed back to Python via POST commands is then processed in Python and the database is updated via SQL.
+
+The layout of the database is described below|:
+
+|Table|Use|
+|:---|:---|
+|users|Store user information|
+|weight|Track changes in a user's weight|
+|standard_food|Store standard food items avaliable to all users|
+|custom_food|Store user created food items|
+|food_type|Store a list of types of food|
+|consumption|Track food consumption|
+|standard_exercises|Store standard exercises and their energy use avaliable to all users|
+|activity|Track activity/energy expenditure|
+
 
 ### HTML
 #### layout.html
@@ -39,3 +255,14 @@ TODO
 ### static
 #### style.css
 TODO
+
+## Continued Development
+### Further useability improvements
+Work on simplifying the interations with the system, making it a "more natural" and "instictive" proces to log both diet and activity
+
+### Further analysis of data
+Graphs to show:
+- Showing BMI ranges
+- Showing calorific defecit and the projected implact on bodymass
+
+

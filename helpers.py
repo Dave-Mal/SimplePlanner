@@ -112,12 +112,6 @@ def create_session(id, username, height, weight, sex, birthday):
     session["toasts"] = []
 
 
-def calculate_age(birthdate):
-    days_in_year = 365.2425
-    age = int((date.today() - datetime.strptime(birthdate,
-              '%Y-%m-%d').date()).days / days_in_year)
-    return age
-
 
 def index_toasts():
     x = 0
