@@ -26,7 +26,7 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if session.get("user_id") != 1:
-            return redirect("/")
+            return redirect("/logout")
         return f(*args, **kwargs)
     return decorated_function
 
@@ -198,30 +198,3 @@ def check_values(source, **kwargs):
         raise ValueError(f"Errors found in the following values {errors}")
 
 
-class person:
-    def __init__(self, username, user_id, height, weight, sex, birthday):
-        self.name = username
-        self.id = user_id
-        self.birthday = birthday
-        self.sex = sex
-        self.weight = weight
-        self.height = height
-
-    def age(self):
-        return int((date.today() - datetime.strptime(self.birthday, '%Y-%m-%d').date()).days / 365.2425)
-
-    def rmr(self):
-        if self.sex == 'm':
-            # Mifflin-St Jeor to calculate RMR(Male)
-            return int((10 * self.weight) + (6.25 * self.height) - (5 * self.age) + 5)
-        elif self.sex == 'f':
-            # Mifflin-St Jeor to calculate RMR(Female)
-            return int((10 * self.weight) + (6.25 * self.height) - (5 * self.age) - 161)
-
-    def weight(self, units):
-        if units == 'kg':
-            return f'{self.weight}Kg'
-        elif units == 'lbs':
-            return f'{self.weight * 2.2}lbs'
-        else:
-            return "Units must be 'kg' or 'lbs'"

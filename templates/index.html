@@ -5,15 +5,13 @@ Index
 {% endblock %}
 
 {% block head %}
-{% if session["user_id"] %}
-<!-- script here-->
-{% endif %}
+
 {% endblock%}
 
 {% block main %}
-<h1>Home</h1>
-
-{% if session["user_id"] %}
-<p>Logged In</p>
-{% endif %}
+<h1>Welcome to SimplePlanner</h1>
+<p>
+    SimplePlanner gives you an easy way to track caloficic intake and use.<br>
+    <a href="/login">Login</a> or <a href="/register">Register</a> to get going.
+</p>
 {% endblock %}

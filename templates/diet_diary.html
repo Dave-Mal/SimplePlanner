@@ -6,9 +6,7 @@ Food Diary
 
 {% block main %}
 <h1>Food Diary</h1>
-<p>Use the table below to add the food eaten to the food diary above.<br>
-    If an item isnt listed, <a href="/customfood">add one here</a><br>
-    If you want to create a meal from the ingredients listed below, <a href="/mealcreation">add one here</a></p>
+<p>Use the table below to add the food eaten to the food diary above.</p>
 
 
 
@@ -69,7 +67,7 @@ Food Diary
                     <td>{{ food["fat"] | round(1) | gkg }}</td>
                     <td>{{ food["energy"] | kcal }}</td>
                     <td>
-                        <form action="/removefromdiet" method="post">
+                        <form action="/remove_diet_item" method="post">
                             <input type="hidden" id="id" name="consumption_id" value='{{ food["id"] }}'>
                             <button type="submit">-</button>
                         </form>
@@ -158,7 +156,7 @@ Food Diary
             </thead>
             <tbody>
 
-                {% for food in standard_foods %}
+                {% for food in foods %}
                 <tr>
                     <form action="/diet_diary" method="post">
                         <td>{{ food["food_name"] }}<input type="hidden" id="food_name" name="name"

@@ -228,6 +228,8 @@ check_values(source, **kwargs)
 check_values(request.form.to_dict(flat=True), string=["name"], zero=["energy", "protien", "carbohydrate", "fat"], positive=["amount"])
 ```
 
+# Sqlite3
+
 ### data.db
 
 #### Description
@@ -237,7 +239,7 @@ The python code calls SQL commands to retrieve data from the database, processes
 
 Data passed back to Python via POST commands is then processed in Python and the database is updated via SQL.
 
-The layout of the database is described below|:
+The layout of the database is described below:
 
 |Table|Use|
 |:---|:---|
@@ -251,16 +253,26 @@ The layout of the database is described below|:
 |activity|Track activity/energy expenditure|
 
 
-### HTML
-#### layout.html
-TODO
+# HTML with Jinja
+Making use of the [Jinja Template syntax](https://jinja.palletsprojects.com/en/3.0.x/templates/) to create a standard for all other pages to be called witin. 
 
-#### *.html
-TODO
+The [Bootstrap 5.1](http://getbootstrap.com/docs/5.1/) framework was used to provide navigation, functionality and design.
 
-### static
-#### style.css
-TODO
+#### A brief descritpion of the HTML pages created can be found below
+|*.html|Use|
+|:---|:---|
+|layout.html|Template HTML file containing  navigation, notification(Toast) & user information bar|
+|index.html|Pre-login page|
+|login.html|Basic user login form|
+|register.html|Basic user registration form|
+|overview.html|A page summarising all the data provided by a user|
+|diet_diary.html|A page to input manage food cosumption and the food catalog|
+|diet_mealcreation.html|A page to create meals using the food items in the catalog|
+|exercise_diary.html|A page to input manage activities and calorific expenditure|
+|admin_users.html|An admin page to manage user accounts|
+|admin_user_deleted.html|A user deletion confirmation page|
+|admin_food.html|An admin page to manage the standard food catalog|
+|admin_exercises.html|An admin page to manage the exercise catalog|
 
 ## Continued Development
 ### Further useability improvements
