@@ -50,7 +50,7 @@ Food Diary
                 <tr>
                     <th>Name</th>
                     <th>Amount</th>
-                    <th>Protien</th>
+                    <th>Protein</th>
                     <th>Carbohydrate</th>
                     <th>Fat</th>
                     <th>Energy</th>
@@ -62,7 +62,7 @@ Food Diary
                 <tr>
                     <td>{{ food["food_name"] }}</td>
                     <td>{{ food["amount"] | round(1) | gkg }}</td>
-                    <td>{{ food["protien"] | round(1) | gkg }}</td>
+                    <td>{{ food["protein"] | round(1) | gkg }}</td>
                     <td>{{ food["carbohydrate"] | round(1) | gkg }}</td>
                     <td>{{ food["fat"] | round(1) | gkg }}</td>
                     <td>{{ food["energy"] | kcal }}</td>
@@ -79,7 +79,7 @@ Food Diary
                 <tr>
                     <td>Total</td>
                     <td>{{ consumption | sum(attribute="amount") | round(1) | gkg }}</td>
-                    <td>{{ consumption | sum(attribute="protien") | round(1) | gkg }}</td>
+                    <td>{{ consumption | sum(attribute="protein") | round(1) | gkg }}</td>
                     <td>{{ consumption | sum(attribute="carbohydrate") | round(1) | gkg }}</td>
                     <td>{{ consumption | sum(attribute="fat") | round(1) | gkg }}</td>
                     <td>{{ consumption | sum(attribute="energy") | round | int | kcal }}</td>
@@ -105,10 +105,6 @@ Food Diary
                     <li><a class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#AddFoodModal"
                             style="float: right">Ingredient</a></li>
                     <li><a class="dropdown-item" href="/mealcreation">Meal</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li><a class="dropdown-item" href="#">Help</a></li>
                 </ul>
             </li>
         </ul>
@@ -146,7 +142,7 @@ Food Diary
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Protien</th>
+                    <th>Protein</th>
                     <th>Carbohydrate</th>
                     <th>Fat</th>
                     <th>Energy</th>
@@ -161,8 +157,8 @@ Food Diary
                     <form action="/diet_diary" method="post">
                         <td>{{ food["food_name"] }}<input type="hidden" id="food_name" name="name"
                                 value='{{ food["food_name"] }}'></td>
-                        <td>{{ food["protien"] | gkg }}<input type="hidden" id="protien" name="protien"
-                                value='{{ food["protien"] }}'></td>
+                        <td>{{ food["protein"] | gkg }}<input type="hidden" id="protein" name="protein"
+                                value='{{ food["protein"] }}'></td>
                         <td>{{ food["carbohydrate"] | gkg }}<input type="hidden" id="carbohydrate" name="carbohydrate"
                                 value='{{ food["carbohydrate"] }}'></td>
                         <td>{{ food["fat"] | gkg }}<input type="hidden" id="fat" name="fat" value='{{ food["fat"] }}'>
@@ -213,8 +209,8 @@ Food Diary
                                     placeholder="Food Name" required type="text"></td>
                         </tr>
                         <tr>
-                            <td>Protien</td>
-                            <td><input class="form-control mx-auto w-auto" name="protien" placeholder="Protien (g)"
+                            <td>Protein</td>
+                            <td><input class="form-control mx-auto w-auto" name="protein" placeholder="protein (g)"
                                     required type="text"></td>
                         </tr>
                         <tr>
@@ -271,7 +267,7 @@ Food Diary
                         <td>Input the name of the food</td>
                     </tr>
                     <tr>
-                        <td class="table-secondary">Protien, Carbohydrate, Fat</td>
+                        <td class="table-secondary">Protein, Carbohydrate, Fat</td>
                         <td>Copy from the amount in grams</td>
                     </tr>
                     <tr>

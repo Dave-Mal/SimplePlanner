@@ -33,7 +33,7 @@ Food Admin
             card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Food Name: <input name='name'></li>");
             card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Food Type: <select name='food_type'>{% for type in food_types %}<option value='{{ type['id'] }}'>{{ type['type'] }}</option>{% endfor %}</select>");
             card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Energy: <input name='energy'></li>");
-            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Protien: <input name='protien'></li>");
+            card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>protein: <input name='protein'></li>");
             card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Carbohydrate: <input name='carbohydrate'></li>");
             card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Fat: <input name='fat'></li>");
             card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Amount: <input name='amount'></li>");
@@ -54,7 +54,7 @@ Food Admin
                 const food_name = document.querySelector("#" + CSS.escape(id) + "_food_name");
                 const type = document.querySelector("#" + CSS.escape(id) + "_type")
                 const energy = document.querySelector("#" + CSS.escape(id) + '_energy');
-                const protien = document.querySelector("#" + CSS.escape(id) + '_protien');
+                const protein = document.querySelector("#" + CSS.escape(id) + '_protein');
                 const carbohydrate = document.querySelector("#" + CSS.escape(id) + '_carbohydrate');
                 const fat = document.querySelector("#" + CSS.escape(id) + '_fat');
 
@@ -67,7 +67,7 @@ Food Admin
                 card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Food Name: <input name='food_name' value='" + food_name.innerHTML + "'></li>");
                 card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Food Type: <select name='food_type'>{% for type in food_types %}<option value='{{ type['id'] }}'>{{ type['type'] }}</option>{% endfor %}</select>");
                 card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Energy: <input name='energy' value='" + energy.innerHTML + "'></li>");
-                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Protien: <input name='protien' value='" + protien.innerHTML + "'></li>");
+                card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>protein: <input name='protein' value='" + protein.innerHTML + "'></li>");
                 card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Carbohydrate: <input name='carbohydrate' value='" + carbohydrate.innerHTML + "'></li>");
                 card.insertAdjacentHTML("beforeend", "<li class='list-group-item'>Fat: <input name='fat' value='" + fat.innerHTML + "'></li>");
                 card.insertAdjacentHTML("beforeend", "</ul>");
@@ -105,7 +105,7 @@ Food Admin
                 <tr>
                     <th>Type</th>
                     <th>Name</th>
-                    <th>Protien (g)</th>
+                    <th>protein (g)</th>
                     <th>Carbohydrate (g)</th>
                     <th>Fat (g)</th>
                     <th>Energy (KCal)</th>
@@ -116,7 +116,7 @@ Food Admin
                 <tr>
                     <td id="{{ food['id'] }}_type" data-id="{{ food['food_type_id'] }}">{{ food["type"] }}</td>
                     <td id="{{ food['id'] }}_food_name">{{ food["food_name"] }}</td>
-                    <td id="{{ food['id'] }}_protien">{{ food["protien"] }}</td>
+                    <td id="{{ food['id'] }}_protein">{{ food["protein"] }}</td>
                     <td id="{{ food['id'] }}_carbohydrate">{{ food["carbohydrate"] }}</td>
                     <td id="{{ food['id'] }}_fat">{{ food["fat"] }}</td>
                     <td id="{{ food['id'] }}_energy">{{ food["energy"] }}</td>

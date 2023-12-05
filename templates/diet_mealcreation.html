@@ -25,7 +25,7 @@ Meal Creation
                 <tr>
                     <th>Name</th>
                     <th>Amount</th>
-                    <th>Protien</th>
+                    <th>Protein</th>
                     <th>Carbohydrate</th>
                     <th>Fat</th>
                     <th>Energy</th>
@@ -36,10 +36,10 @@ Meal Creation
                 {% for food in build_custom_food %}
                 <tr>
                     <td>{{ food["food_name"] }}</td>
-                    <td>{{ food["amount"] | gkg }}</td>
-                    <td>{{ food["protien"] | gkg }}</td>
-                    <td>{{ food["carbohydrate"] | gkg }}</td>
-                    <td>{{ food["fat"] | gkg }}</td>
+                    <td>{{ food["amount"] | round(1) | gkg }}</td>
+                    <td>{{ food["protein"] | round(1) | gkg }}</td>
+                    <td>{{ food["carbohydrate"] | round(1) | gkg }}</td>
+                    <td>{{ food["fat"] | round(1) | gkg }}</td>
                     <td>{{ food["energy"] | kcal }}</td>
                     <td>
                         <form action="/build_meal_remove" method="post">
@@ -54,16 +54,16 @@ Meal Creation
                 <tfoot>
                     <tr>
                         <td>Total</td>
-                        <td>{{ build_custom_food | sum(attribute="amount") | gkg }}<input type="hidden" name="amount"
+                        <td>{{ build_custom_food | sum(attribute="amount") | round(1) | gkg }}<input type="hidden" name="amount"
                                 value='{{ build_custom_food | sum(attribute="amount") }}'></td>
-                        <td>{{ build_custom_food | sum(attribute="protien") | gkg }}<input type="hidden" name="protien"
-                                value='{{ build_custom_food | sum(attribute="protien") }}'></td>
-                        <td>{{ build_custom_food | sum(attribute="carbohydrate") | gkg }}<input type="hidden"
+                        <td>{{ build_custom_food | sum(attribute="protein") | round(1) | gkg }}<input type="hidden" name="protein"
+                                value='{{ build_custom_food | sum(attribute="protein") }}'></td>
+                        <td>{{ build_custom_food | sum(attribute="carbohydrate") | round(1) | gkg }}<input type="hidden"
                                 name="carbohydrate" value='{{ build_custom_food | sum(attribute="carbohydrate") }}'>
                         </td>
-                        <td>{{ build_custom_food | sum(attribute="fat") | gkg }}<input type="hidden" name="fat"
+                        <td>{{ build_custom_food | sum(attribute="fat") | round(1) | gkg }}<input type="hidden" name="fat"
                                 value='{{ build_custom_food | sum(attribute="fat") }}'></td>
-                        <td>{{ build_custom_food | sum(attribute="energy") | kcal }}<input type="hidden" name="energy"
+                        <td>{{ build_custom_food | sum(attribute="energy") | round(1) | kcal }}<input type="hidden" name="energy"
                                 value='{{ build_custom_food | sum(attribute="energy") }}'></td>
                         <td></td>
                     </tr>
@@ -119,7 +119,7 @@ Meal Creation
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Protien</th>
+                    <th>Protein</th>
                     <th>Carbohydrate</th>
                     <th>Fat</th>
                     <th>Energy</th>
@@ -134,8 +134,8 @@ Meal Creation
                     <form action="/build_meal" method="post">
                         <td>{{ food["food_name"] }}<input type="hidden" id="food_name" name="food_name"
                                 value='{{ food["food_name"] }}'></td>
-                        <td>{{ food["protien"] | gkg }}<input type="hidden" id="protien" name="protien"
-                                value='{{ food["protien"] }}'></td>
+                        <td>{{ food["protein"] | gkg }}<input type="hidden" id="protein" name="protein"
+                                value='{{ food["protein"] }}'></td>
                         <td>{{ food["carbohydrate"] | gkg }}<input type="hidden" id="carbohydrate" name="carbohydrate"
                                 value='{{ food["carbohydrate"] }}'></td>
                         <td>{{ food["fat"] | gkg }}<input type="hidden" id="fat" name="fat" value='{{ food["fat"] }}'>

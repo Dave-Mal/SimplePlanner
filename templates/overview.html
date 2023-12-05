@@ -19,11 +19,11 @@ Overview
                 <tr>
                     <th>Date</th>
                     <th>Weight</th>
-                    <th>Macro Nutrient Breakdown P:C:F</th>
+                    <th>Macro Nutrient Breakdown Protein:Carbs:Fat</th>
                     <th>Energy Consumed</th>
                     <th>Maintanance Calories</th>
-                    <th>Energy Burnt from activities</th>
-                    <th>Calorific Surpluss (+) /Deficit (-)</th>
+                    <th>Energy Burnt from Activities</th>
+                    <th>Calorific Surplus (+) /Deficit (-)</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,7 +31,7 @@ Overview
                 <tr>
                     <td class="table-light">{{ day["date"] }}</td>
                     <td class="table-secondary">{{ day["weight"] }} Kg</td>
-                    <td class="table-success">{{ day["protien"] | round | int | gkg }} : {{ day["carbohydrate"] | round |
+                    <td class="table-success">{{ day["protein"] | round | int | gkg }} : {{ day["carbohydrate"] | round |
                         int | gkg }} : {{ day["fat"] | round | int | gkg }}</td>
                     <td class="table-success">+{{ day["energy"] | round | int | kcal }}</td>
                     <td class="table-warning">-{{ day["basic_maint"] | round | int | kcal }}</td>
@@ -56,7 +56,7 @@ Overview
                     <th>Avg Energy Consumed (KCal)</th>
                     <th>Avg Maintanance Calories</th>
                     <th>Avg Energy Burnt from activities</th>
-                    <th>Avg Calorific Surpluss (+) /Deficit (-)</th>
+                    <th>Avg Calorific Surplus (+) /Deficit (-)</th>
 
                 </tr>
             </thead>
@@ -65,7 +65,7 @@ Overview
                 <tr>
                     <td class="table-light">{{ month["month"] }}</td>
                     <td class="table-secondary">{{ month["weight"] | round | int }} Kg</td>
-                    <td class="table-success">{{ month["protien"] | round | int | gkg }} : {{ month["carbohydrate"] | round
+                    <td class="table-success">{{ month["protein"] | round | int | gkg }} : {{ month["carbohydrate"] | round
                         | int | gkg }} : {{ month["fat"] | round | int | gkg }}</td>
                     <td class="table-success">+{{ month["energy"] | round | int | kcal }}</td>
                     <td class="table-warning">-{{ month["basic_maint"] | round | int | kcal }}</td>

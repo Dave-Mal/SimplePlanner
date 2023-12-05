@@ -69,13 +69,14 @@ def login():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    username_length = 5
     if request.method == "POST":
         # Check Username meets basic requirements
         if not (request.form.get("username")):
             return render_template("register.html", failure="Please enter a username")
 
-        if len(request.form.get("username")) < 5:
-            return render_template("register.html", failure="A username must be at least 10 characters")
+        if len(request.form.get("username")) < username_length:
+            return render_template("register.html", failure=f"A username must be at least {username_length} characters")
 
         if " " in request.form.get("username"):
             return render_template("register.html", failure="A username must be a single word")
@@ -156,14 +157,14 @@ def account():
 def overview():
     # Retrieve data from the database for diet, weight and activity to combine and display as anoverview
     cur = db.cursor()
-    daily_diet = cur.execute("""SELECT date, sum(amount) AS amount, sum(energy) AS energy, sum(protien) AS protien, sum(carbohydrate) AS carbohydrate, sum(fat) AS fat
+    daily_diet = cur.execute("""SELECT date, sum(amount) AS amount, sum(energy) AS energy, sum(protein) AS protein, sum(carbohydrate) AS carbohydrate, sum(fat) AS fat
                             FROM consumption 
                             WHERE user_id = ?
                             GROUP BY date
                             ORDER BY date DESC
                             LIMIT 7""", (session["user_id"], )).fetchall()
-    monthly_diet = cur.execute("""SELECT STRFTIME("%Y-%m", date) AS month, avg(amount) AS amount, avg(energy) AS energy, avg(protien) AS protien, avg(carbohydrate) AS carbohydrate, avg(fat) AS fat
-                            FROM (SELECT date, sum(amount) AS amount, sum(energy) AS energy, sum(protien) AS protien, sum(carbohydrate) AS carbohydrate, sum(fat) AS fat
+    monthly_diet = cur.execute("""SELECT STRFTIME("%Y-%m", date) AS month, avg(amount) AS amount, avg(energy) AS energy, avg(protein) AS protein, avg(carbohydrate) AS carbohydrate, avg(fat) AS fat
+                            FROM (SELECT date, sum(amount) AS amount, sum(energy) AS energy, sum(protein) AS protein, sum(carbohydrate) AS carbohydrate, sum(fat) AS fat
                             FROM consumption 
                             WHERE user_id = ?
                             GROUP BY date)
@@ -196,7 +197,7 @@ def overview():
         for y in daily_activity:
             if not any(day["date"] == y["date"] for day in daily_diet):
                 daily_diet.append({"date": y["date"], "amount": 0, "energy": 0,
-                                   "protien": 0, "carbohydrate": 0, "fat": 0})
+                                   "protein": 0, "carbohydrate": 0, "fat": 0})
             if day["date"] == y["date"]:
                 day["energy_out"] = y["energy"]
             elif "energy_out" not in day:
@@ -220,7 +221,7 @@ def overview():
         for y in monthly_activity:
             if not any(month["month"] == y["month"] for month in monthly_diet):
                 monthly_diet.append(
-                    {"month": y["month"], "amount": 0, "energy": 0, "protien": 0, "carbohydrate": 0, "fat": 0})
+                    {"month": y["month"], "amount": 0, "energy": 0, "protein": 0, "carbohydrate": 0, "fat": 0})
             if month["month"] == y["month"]:
                 month["energy_out"] = y["energy"]
             elif "energy_out" not in month:
@@ -243,18 +244,18 @@ def custom_food():
         # Validate values
         try:
             values = helpers.check_values(request.form.to_dict(flat=True), string=["name"], zero=[
-                "energy", "protien", "carbohydrate", "fat"], positive=["amount"])
+                "energy", "protein", "carbohydrate", "fat"], positive=["amount"])
         except Exception as e:
             print(f"/customfood ERROR: {e}")
             pass
         else:
             # Insert into custom_food table
             energy = round(values["energy"] / values["amount"] * 100, 2)
-            protien = round(values["protien"] / values["amount"] * 100, 2)
+            protein = round(values["protein"] / values["amount"] * 100, 2)
             carbs = round(values["carbohydrate"] / values["amount"] * 100, 2)
             fat = round(values["fat"] / values["amount"] * 100, 2)
             cur = db.cursor()
-            if cur.execute("INSERT INTO custom_food (user_id, food_name, food_type_id, energy, protien, carbohydrate, fat) VALUES (?, ?, ?, ?, ?, ?, ?)", (session["user_id"], request.form.get("name").title(), request.form.get("food_type"), energy, protien, carbs, fat)).rowcount == 1:
+            if cur.execute("INSERT INTO custom_food (user_id, food_name, food_type_id, energy, protein, carbohydrate, fat) VALUES (?, ?, ?, ?, ?, ?, ?)", (session["user_id"], request.form.get("name").title(), request.form.get("food_type"), energy, protein, carbs, fat)).rowcount == 1:
                 helpers.add_toast(
                     f"{request.form.get('name').title()} created and added as a custom food item", 1)
                 db.commit()
@@ -263,11 +264,11 @@ def custom_food():
                     f"Food not added to database, please try again")
             cur.close()
             session["meal_creation"] = []
-        return redirect("/diet_diary")
+        return redirect(request.referrer)
 
     # else:
     #     cur = db.cursor()
-    #     custom_foods = cur.execute("SELECT custom_food.id, custom_food.food_name, custom_food.energy, custom_food.protien, custom_food.carbohydrate, custom_food.fat, food_type.type, food_type.id AS food_type_id FROM custom_food INNER JOIN food_type ON custom_food.food_type_id = food_type.id WHERE custom_food.user_id = ? ORDER BY food_name", ((
+    #     custom_foods = cur.execute("SELECT custom_food.id, custom_food.food_name, custom_food.energy, custom_food.protein, custom_food.carbohydrate, custom_food.fat, food_type.type, food_type.id AS food_type_id FROM custom_food INNER JOIN food_type ON custom_food.food_type_id = food_type.id WHERE custom_food.user_id = ? ORDER BY food_name", ((
     #         session["user_id"]), )).fetchall()
     #     food_types = cur.execute(
     #         "SELECT * FROM food_type ORDER BY type").fetchall()
@@ -343,18 +344,18 @@ def diet_diary():
     if request.method == "POST":
         try:
             values = helpers.check_values(request.form.to_dict(flat=True), string=["name"], zero=[
-                "energy", "protien", "carbohydrate", "fat"], positive=["amount"])
+                "energy", "protein", "carbohydrate", "fat"], positive=["amount"])
         except Exception as e:
             print(f"/diet_diary ERROR: {e}")
             pass
         else:
             energy = round(values["energy"] * values["amount"] / 100, 2)
-            protien = round(values["protien"] * values["amount"] / 100, 2)
+            protein = round(values["protein"] * values["amount"] / 100, 2)
             carbs = round(values["carbohydrate"] * values["amount"] / 100, 2)
             fat = round(values["fat"] * values["amount"] / 100, 2)
             cur = db.cursor()
-            cur.execute("INSERT INTO consumption (user_id, date, food_name, amount, energy, protien, carbohydrate, fat) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                        (session["user_id"], session["date"], request.form.get("name"), request.form.get("amount"), energy, protien, carbs, fat))
+            cur.execute("INSERT INTO consumption (user_id, date, food_name, amount, energy, protein, carbohydrate, fat) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        (session["user_id"], session["date"], request.form.get("name"), request.form.get("amount"), energy, protein, carbs, fat))
             db.commit()
             cur.close()
         return redirect(request.referrer)
@@ -364,12 +365,12 @@ def diet_diary():
         cur = db.cursor()
         consumption = cur.execute("SELECT * FROM consumption WHERE user_id = ? AND date = ?",
                                   ((session["user_id"], session["date"]))).fetchall()
-        foods = cur.execute("""SELECT standard_food.id, standard_food.food_name, standard_food.energy, standard_food.protien, standard_food.carbohydrate, standard_food.fat, food_type.type, food_type.id AS food_type_id 
+        foods = cur.execute("""SELECT standard_food.id, standard_food.food_name, standard_food.energy, standard_food.protein, standard_food.carbohydrate, standard_food.fat, food_type.type, food_type.id AS food_type_id 
                             FROM standard_food
                             INNER JOIN food_type ON standard_food.food_type_id = food_type.id
                             WHERE food_type_id LIKE ?
                             UNION
-                            SELECT custom_food.id, custom_food.food_name, custom_food.energy, custom_food.protien, custom_food.carbohydrate, custom_food.fat, food_type.type, food_type.id AS food_type_id 
+                            SELECT custom_food.id, custom_food.food_name, custom_food.energy, custom_food.protein, custom_food.carbohydrate, custom_food.fat, food_type.type, food_type.id AS food_type_id 
                             FROM custom_food INNER JOIN food_type ON custom_food.food_type_id = food_type.id 
                             WHERE food_type.id LIKE ?
                             AND custom_food.user_id = ?
@@ -401,12 +402,12 @@ def meal_creation():
     else:
         cur = db.cursor()
         # Retrieve all standard foods from the database along with any custom foods added by the session user which are not meals
-        foods = cur.execute("""SELECT standard_food.id, standard_food.food_name, standard_food.energy, standard_food.protien, standard_food.carbohydrate, standard_food.fat, food_type.type, food_type.id AS food_type_id 
+        foods = cur.execute("""SELECT standard_food.id, standard_food.food_name, standard_food.energy, standard_food.protein, standard_food.carbohydrate, standard_food.fat, food_type.type, food_type.id AS food_type_id 
                             FROM standard_food
                             INNER JOIN food_type ON standard_food.food_type_id = food_type.id
                             WHERE food_type_id LIKE ?
                             UNION
-                            SELECT custom_food.id, custom_food.food_name, custom_food.energy, custom_food.protien, custom_food.carbohydrate, custom_food.fat, food_type.type, food_type.id AS food_type_id 
+                            SELECT custom_food.id, custom_food.food_name, custom_food.energy, custom_food.protein, custom_food.carbohydrate, custom_food.fat, food_type.type, food_type.id AS food_type_id 
                             FROM custom_food INNER JOIN food_type ON custom_food.food_type_id = food_type.id 
                             WHERE food_type.id LIKE ?
                             AND custom_food.user_id = ?
@@ -428,7 +429,7 @@ def build_meal():
     item["amount"] = float(request.form.get("amount"))
     item["energy"] = float(request.form.get("energy")) * \
         float(request.form.get("amount")) / 100
-    item["protien"] = float(request.form.get("protien")) * \
+    item["protein"] = float(request.form.get("protein")) * \
         float(request.form.get("amount")) / 100
     item["carbohydrate"] = float(request.form.get(
         "carbohydrate")) * float(request.form.get("amount")) / 100
@@ -530,7 +531,7 @@ def activity_remove():
 @helpers.admin_required
 def admin_food():
     cur = db.cursor()
-    standard_foods = cur.execute("SELECT standard_food.id, standard_food.food_name, standard_food.energy, standard_food.protien, standard_food.carbohydrate, standard_food.fat, food_type.type, food_type.id AS food_type_id FROM standard_food INNER JOIN food_type ON standard_food.food_type_id = food_type.id ORDER BY food_name").fetchall()
+    standard_foods = cur.execute("SELECT standard_food.id, standard_food.food_name, standard_food.energy, standard_food.protein, standard_food.carbohydrate, standard_food.fat, food_type.type, food_type.id AS food_type_id FROM standard_food INNER JOIN food_type ON standard_food.food_type_id = food_type.id ORDER BY food_name").fetchall()
     food_types = cur.execute(
         "SELECT * FROM food_type ORDER BY type").fetchall()
     cur.close()
@@ -542,17 +543,17 @@ def admin_food():
 def standard_food():
     try:
         values = helpers.check_values(request.form.to_dict(flat=True), string=["name"], zero=[
-            "energy", "protien", "carbohydrate", "fat"], positive=["amount"])
+            "energy", "protein", "carbohydrate", "fat"], positive=["amount"])
     except Exception as e:
         print(f"/add_standard_food ERROR: {e}")
         pass
     else:
         energy = round(values["energy"] / values["amount"] * 100, 2)
-        protien = round(values["protien"] / values["amount"] * 100, 2)
+        protein = round(values["protein"] / values["amount"] * 100, 2)
         carbs = round(values["carbohydrate"] / values["amount"] * 100, 2)
         fat = round(values["fat"] / values["amount"] * 100, 2)
         cur = db.cursor()
-        if cur.execute("INSERT INTO standard_food (food_name, food_type_id, energy, protien, carbohydrate, fat) VALUES (?, ?, ?, ?, ?, ?)", (request.form.get("name"), request.form.get("food_type"), energy, protien, carbs, fat)).rowcount < 1:
+        if cur.execute("INSERT INTO standard_food (food_name, food_type_id, energy, protein, carbohydrate, fat) VALUES (?, ?, ?, ?, ?, ?)", (request.form.get("name"), request.form.get("food_type"), energy, protein, carbs, fat)).rowcount < 1:
             helpers.add_toast(f"Food not added to database, please try again")
         db.commit()
         cur.close()
@@ -564,8 +565,8 @@ def standard_food():
 def update_standard_food():
     cur = db.cursor()
     cur.execute("""UPDATE standard_food
-                SET food_name = ?, food_type_id = ?, energy = ?, protien = ?, carbohydrate = ?, fat = ?
-                WHERE id = ?""", (request.form.get("food_name"), request.form.get("food_type"), request.form.get("energy"), request.form.get("protien"), request.form.get("carbohydrate"), request.form.get("fat"), request.form.get("id")))
+                SET food_name = ?, food_type_id = ?, energy = ?, protein = ?, carbohydrate = ?, fat = ?
+                WHERE id = ?""", (request.form.get("food_name"), request.form.get("food_type"), request.form.get("energy"), request.form.get("protein"), request.form.get("carbohydrate"), request.form.get("fat"), request.form.get("id")))
     db.commit()
     cur.close()
     return redirect(request.referrer)
@@ -602,14 +603,12 @@ def delete_user():
     deleted_rows["id"] = user["id"]
     cur.execute("DELETE FROM weight WHERE user_id = ?", (id, ))
     deleted_rows["weight"] = cur.rowcount
-    cur.execute("DELETE FROM exercise WHERE user_id = ?", (id, ))
-    deleted_rows["exercise"] = cur.rowcount
+    cur.execute("DELETE FROM activity WHERE user_id = ?", (id, ))
+    deleted_rows["activity"] = cur.rowcount
     cur.execute("DELETE FROM consumption WHERE user_id = ?", (id, ))
     deleted_rows["consumption"] = cur.rowcount
     cur.execute("DELETE FROM custom_food WHERE user_id = ?", (id, ))
     deleted_rows["custom_food"] = cur.rowcount
-    cur.execute("DELETE FROM activity WHERE user_id = ?", (id, ))
-    deleted_rows["activity"] = cur.rowcount
     cur.execute("DELETE FROM users WHERE id = ?", (id, ))
     db.commit()
     cur.close()
