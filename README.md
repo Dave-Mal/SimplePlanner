@@ -1,5 +1,5 @@
 # SimplePlanner
-#### Video Demo:  [youtube.com](https://www.youtube.com/watch?v=cEauBnORdkY)
+#### Video Demo:  [youtube.com](https://www.youtube.com/watch?v=DaDkCEUOKrw)
 #### Description: CS50x final project SimplePlanner, a quick and simple diet and activity tracker
 #### The goal in the creation of the system was to:
 >*Allow the tracking of calorific intake and expendature without the headache.*
