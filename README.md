@@ -1,5 +1,5 @@
 # SimplePlanner
-#### Video Demo:  <URL HERE>
+#### Video Demo:  [youtube.com](https://www.youtube.com/watch?v=cEauBnORdkY)
 #### Description: CS50x final project SimplePlanner, a quick and simple diet and activity tracker
 #### The goal in the creation of the system was to:
 >*Allow the tracking of calorific intake and expendature without the headache.*
@@ -221,11 +221,11 @@ If no errors are found err == 0 and all values are returned in a dictionary
 check_values(source, **kwargs)
 
 # Checks ["name"] as a string
-# Checks ["energy", "protien", "carbohydrate", "fat"] as being 0 or larger
+# Checks ["energy", "protein", "carbohydrate", "fat"] as being 0 or larger
 # Checks ["amount"] as being positive
 
 # returns dictionary containing key (**kwargs) values (data from source)
-check_values(request.form.to_dict(flat=True), string=["name"], zero=["energy", "protien", "carbohydrate", "fat"], positive=["amount"])
+check_values(request.form.to_dict(flat=True), string=["name"], zero=["energy", "protein", "carbohydrate", "fat"], positive=["amount"])
 ```
 
 # Sqlite3
